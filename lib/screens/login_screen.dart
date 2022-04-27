@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 
+import 'package:email_validator/email_validator.dart';
+import 'package:flutter_pw_validator/flutter_pw_validator.dart';
+
+import '../screens/home_screen.dart';
+
 enum AuthMode { login, signup }
 
 class LoginScreen extends StatefulWidget {
@@ -84,12 +89,23 @@ class _LoginScreenState extends State<LoginScreen>
     );
   }
 
+  void saveForm() {
+    final isValid = _formKey.currentState!.validate();
+
+    if (!isValid) {
+      return;
+    }
+
+    _formKey.currentState!.save();
+    //Navigator.of(context).pushNamed(HomeScreen.routeName);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(_authmode == AuthMode.login ? 'Login' : 'Signup'),
-        backgroundColor: Theme.of(context).primaryColor,
+        //backgroundColor: Theme.of(context).primaryColor,
         elevation: 0,
       ),
       body: SingleChildScrollView(
@@ -104,10 +120,8 @@ class _LoginScreenState extends State<LoginScreen>
                     padding: EdgeInsets.only(top: 90),
                     child: Text(
                       'Create Account',
-                      style: TextStyle(
-                        fontSize: 30,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style:
+                          TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
                     ),
                   ),
                   SizedBox(
@@ -130,13 +144,18 @@ class _LoginScreenState extends State<LoginScreen>
                                 //labelText: 'Email',
                                 border: InputBorder.none,
                               ),
+                              textCapitalization: TextCapitalization.sentences,
                               keyboardType: TextInputType.emailAddress,
                               validator: (value) {
-                                if (value!.isEmpty) {
-                                  return '* required';
-                                } else if (!value.contains('@')) {
-                                  return 'Invalid email!';
+                                if (!EmailValidator.validate(value!)) {
+                                  return 'Enter a valid email address';
                                 }
+                                if (value.isEmpty) {
+                                  return '* required';
+                                }
+                                // else if (!value.contains('@')) {
+                                //   return 'Invalid email!';
+                                // }
                                 return null;
                               },
                             ),
@@ -169,6 +188,15 @@ class _LoginScreenState extends State<LoginScreen>
                               ),
                               keyboardType: TextInputType.text,
                               validator: (value) {
+                                FlutterPwValidator(
+                                  width: 400,
+                                  height: 150,
+                                  minLength: 6,
+                                  numericCharCount: 1,
+                                  specialCharCount: 1,
+                                  onSuccess: () {},
+                                  controller: passController,
+                                );
                                 if (value!.isEmpty) {
                                   return '* required';
                                 }
@@ -251,7 +279,10 @@ class _LoginScreenState extends State<LoginScreen>
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    saveForm();
+                    Navigator.of(context).pushNamed(HomeScreen.routeName);
+                  },
                   child: Text(
                     _authmode == AuthMode.login ? 'Login' : 'Signup',
                     style: const TextStyle(fontSize: 20),

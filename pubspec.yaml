@@ -42,10 +42,14 @@ dependencies:
   email_validator: ^2.0.1
   desktop_window: ^0.4.0
   google_fonts: ^2.3.1
-
+  flutter_pw_validator: ^1.4.2
+  image_picker: ^0.8.5
+  path_provider: ^2.0.9
+  path: ^1.8.0
+  image_cropper: ^1.5.1
   
   
-
+  
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -93,6 +97,9 @@ flutter:
     - assets/welcome_images/1.png
     - assets/welcome_images/2.png
     - assets/welcome_images/3.png
+    - assets/images/TJ.jpg
+    - assets/images/KA.jpg
+    - assets/images/NJ.jpg
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

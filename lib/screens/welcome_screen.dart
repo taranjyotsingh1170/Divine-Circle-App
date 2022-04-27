@@ -35,14 +35,11 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
     Widget buildImage(String image) {
       return SizedBox(
-        // margin: const EdgeInsets.symmetric(horizontal: 15),
-        //color: Colors.grey,
         child: Image.asset(image),
       );
     }
 
     Widget buildIndicator() {
-      //print(_activeIndex);
       return AnimatedSmoothIndicator(
         activeIndex: _activeIndex,
         count: _imageList.length,
@@ -55,23 +52,13 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       );
     }
 
-    // Widget buildText(String text) {
-    //   return Expanded(
-    //     child: ListView.builder(
-    //       itemBuilder: (context, _activeIndex) =>
-    //           Text(text),
-    //       itemCount: _imageText.length,
-    //     ),
-    //   );
-    // }
-
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text('Divine Circle'),
+        title:  Text('Divine Circle', style: GoogleFonts.inter(fontWeight: FontWeight.w500)),
         elevation: 0,
         centerTitle: true,
-        backgroundColor: Theme.of(context).primaryColor,
+        //backgroundColor: Theme.of(context).primaryColor,
       ),
       body: Stack(
         alignment: Alignment.bottomCenter,
@@ -93,7 +80,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                         child: Text(
                           _imageText[index],
                           style: GoogleFonts.inter(
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w600,
                             fontSize: 22,
                           ),
                           textAlign: TextAlign.center,
@@ -103,26 +90,14 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   ),
                   options: CarouselOptions(
                     height: 400,
-                    //autoPlay: _activeIndex == 2? false : true,
-                    //autoPlayAnimationDuration: const Duration(seconds: 4),
-                    //enlargeCenterPage: true,
                     enableInfiniteScroll: false,
                     onPageChanged: (pageIndex, reason) {
                       setState(() {
                         _activeIndex = pageIndex;
                       });
-                      //print('Active index is - $_activeIndex');
                     },
                   ),
                 ),
-                //const SizedBox(height: 20),
-                // Expanded(
-                //   child: ListView.builder(
-                //     itemBuilder: (context, _activeIndex) => Text(_imageText[_activeIndex]),
-                //     itemCount: _imageText.length,
-                //   ),
-                // ),
-                //const SizedBox(height: 20),
                 buildIndicator(),
               ],
             ),
@@ -134,9 +109,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 onPressed: () {
                   Navigator.of(context).pushNamed(LoginScreen.routeName);
                 },
-                child: const Text(
+                child: Text(
                   'Get started',
-                  style: TextStyle(fontSize: 20),
+                  style: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.w500),
                 ),
                 style: ElevatedButton.styleFrom(
                   primary: Theme.of(context).primaryColor,
