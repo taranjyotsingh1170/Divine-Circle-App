@@ -1,15 +1,21 @@
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
-//import 'package:flutter_native_splash/flutter_native_splash.dart';
+import '../providers/members.dart';
+import '../providers/events.dart';
 
 import 'screens/welcome_screen.dart';
 import './screens/login_screen.dart';
 import '../screens/home_screen.dart';
 import '../screens/wall_of_fame_screen.dart';
 import '../screens/edit_wall_of_fame_screen.dart';
+import '../screens/add_event_screen.dart';
+import '../screens/event_calendar_screen.dart';
+import '../screens/profile_screen.dart';
+import '../screens/tabs_screen.dart';
 
-import '../providers/members.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,10 +35,20 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => Members()),
+        ChangeNotifierProvider(create: (_) => Events()),
       ],
       child: MaterialApp(
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+    ],
+    supportedLocales: const [
+           Locale('en', 'US'), // English
+          //const Locale('th', 'TH'), // Thai
+    ],
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
+          useMaterial3: true,
           primaryColor: const Color(0xff134493),
           appBarTheme: const AppBarTheme(
             color: Color(0xff134493),
@@ -44,6 +60,10 @@ class MyApp extends StatelessWidget {
           HomeScreen.routeName: (ctx) => const HomeScreen(),
           WallOfFame.routeName: (ctx) => const WallOfFame(),
           EditWallOfFameScreen.routeName: (ctx) => const EditWallOfFameScreen(),
+          AddEventScreen.routeName: (ctx) => const AddEventScreen(),
+          EventCalendarScreen.routeName: (ctx)=> const EventCalendarScreen(),
+          TabsScreen.routeName: (ctx) => const TabsScreen(),
+          ProfileScreen.routeName: (ctx)=> const ProfileScreen(),
         },
       ),
     );

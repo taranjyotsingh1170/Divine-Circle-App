@@ -10,7 +10,7 @@ import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
-import '../providers/user.dart';
+import '../models/user.dart';
 // import 'package:path_provider/path_provider.dart' as syspaths;
 // import 'package:path/path.dart' as path;
 
@@ -137,7 +137,7 @@ class _EditWallOfFameScreenState extends State<EditWallOfFameScreen> {
                 const SizedBox(width: 20),
                 Expanded(
                   child: Column(
-                   // mainAxisAlignment: MainAxisAlignment.end,
+                    // mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       CircleAvatar(
                         radius: 30,
@@ -280,7 +280,6 @@ class _EditWallOfFameScreenState extends State<EditWallOfFameScreen> {
           ),
         ),
       ),
-      //bottomSheet:
     );
   }
 }

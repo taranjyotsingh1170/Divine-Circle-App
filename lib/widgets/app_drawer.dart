@@ -3,6 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../screens/wall_of_fame_screen.dart';
 import '../screens/home_screen.dart';
+//import '../screens/event_calendar_screen.dart';
+
 
 class AppDrawer extends StatelessWidget {
   const AppDrawer({Key? key}) : super(key: key);
@@ -36,7 +38,17 @@ class AppDrawer extends StatelessWidget {
               Navigator.of(context).pushNamed(WallOfFame.routeName);
             },
           ),
-          const Divider()
+          // const Divider(),
+          // ListTile(
+          //   leading: const Icon(Icons.event),
+          //   title:  Text(
+          //     'Event Calendar',
+          //     style: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.w500),
+          //   ),
+          //   onTap: () {
+          //     Navigator.of(context).pushNamed(EventCalendarScreen.routeName);
+          //   },
+          // ),
         ],
       ),
     );

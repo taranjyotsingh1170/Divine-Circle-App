@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter_pw_validator/flutter_pw_validator.dart';
 
-import '../screens/home_screen.dart';
+import '../screens/tabs_screen.dart';
+
+//import '../screens/home_screen.dart';
 
 enum AuthMode { login, signup }
 
@@ -281,7 +282,7 @@ class _LoginScreenState extends State<LoginScreen>
                 ElevatedButton(
                   onPressed: () {
                     saveForm();
-                    Navigator.of(context).pushNamed(HomeScreen.routeName);
+                    Navigator.of(context).pushNamed(TabsScreen.routeName);
                   },
                   child: Text(
                     _authmode == AuthMode.login ? 'Login' : 'Signup',

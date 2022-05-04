@@ -34,7 +34,6 @@ class _WallOfFameState extends State<WallOfFame> {
                 'Wall of Fame',
                 style: GoogleFonts.inter(fontWeight: FontWeight.w500),
               ),
-              
               elevation: 0,
               actions: [
                 IconButton(
@@ -75,89 +74,92 @@ class _WallOfFameState extends State<WallOfFame> {
               child: Padding(
                 padding: const EdgeInsets.only(top: 8),
                 child: InkWell(
-                    splashColor: const Color(0xff134493),
-                    onLongPress: () {
-                      setState(
-                        () {
-                          isSelected = true;
-                          newAppBar = true;
-                          removeMemberId = membersData.membersList[index].id;
-                          existingSelectedMemberId =
-                              membersData.membersList[index].id;
-                        },
-                      );
+                  splashColor: const Color(0xff134493),
+                  onLongPress: () {
+                    setState(
+                      () {
+                        isSelected = true;
+                        newAppBar = true;
+                        removeMemberId = membersData.membersList[index].id;
+                        existingSelectedMemberId =
+                            membersData.membersList[index].id;
+                      },
+                    );
 
-                      //print(membersData.membersList[index].name);
-                      // isSelected == true
-                      //     ? membersData.addMemberInSelectedList(
-                      //         User(
-                      //           id: membersData.membersList[index].id,
-                      //           name: membersData.membersList[index].name,
-                      //           phoneNumber:
-                      //               membersData.membersList[index].phoneNumber,
-                      //           image: membersData.membersList[index].image,
-                      //           designation:
-                      //               membersData.membersList[index].designation,
-                      //         ),
-                      //         existingSelectedMemberId)
-                      //     : null;
-                      isSelected == true
-                          ? membersData.addMemberIDInSelectedList(
-                              existingSelectedMemberId)
-                          : null;
-                      // print(existingSelectedMemberId);
-                      // print(membersData.selectedList.length);
-                    },
-                    onTap: () {
-                      // setState(() {
-                      //   newAppBar = false;
-                      // });
-                      existingSelectedMemberId =
-                          membersData.membersList[index].id;
-                      // membersData.removeMemberFromSelectedList(
-                      //   membersData.membersList[index].id,
-                      // );
-                      // print(membersData.selectedList.length);
+                    //print(membersData.membersList[index].name);
+                    // isSelected == true
+                    //     ? membersData.addMemberInSelectedList(
+                    //         User(
+                    //           id: membersData.membersList[index].id,
+                    //           name: membersData.membersList[index].name,
+                    //           phoneNumber:
+                    //               membersData.membersList[index].phoneNumber,
+                    //           image: membersData.membersList[index].image,
+                    //           designation:
+                    //               membersData.membersList[index].designation,
+                    //         ),
+                    //         existingSelectedMemberId)
+                    //     : null;
+                    isSelected == true
+                        ? membersData
+                            .addMemberIDInSelectedList(existingSelectedMemberId)
+                        : null;
+                    // print(existingSelectedMemberId);
+                    // print(membersData.selectedList.length);
+                  },
+                  onTap: () {
+                    // setState(() {
+                    //   newAppBar = false;
+                    // });
+                    if (membersData.selectedList.isEmpty) {
+                      setState(() {
+                        isSelected = false;
+                      });
+                    }
+                    existingSelectedMemberId =
+                        membersData.membersList[index].id;
+                    // membersData.removeMemberFromSelectedList(
+                    //   membersData.membersList[index].id,
+                    // );
+                    // print(membersData.selectedList.length);
 
-                      //print(existingSelectedMemberId);
-                      // isSelected == true
-                      //     ? membersData.addMemberInSelectedList(
-                      //         User(
-                      //           id: membersData.membersList[index].id,
-                      //           name: membersData.membersList[index].name,
-                      //           phoneNumber:
-                      //               membersData.membersList[index].phoneNumber,
-                      //           image: membersData.membersList[index].image,
-                      //           designation:
-                      //               membersData.membersList[index].designation,
-                      //         ),
-                      //         existingSelectedMemberId)
-                      //     : null;
+                    //print(existingSelectedMemberId);
+                    // isSelected == true
+                    //     ? membersData.addMemberInSelectedList(
+                    //         User(
+                    //           id: membersData.membersList[index].id,
+                    //           name: membersData.membersList[index].name,
+                    //           phoneNumber:
+                    //               membersData.membersList[index].phoneNumber,
+                    //           image: membersData.membersList[index].image,
+                    //           designation:
+                    //               membersData.membersList[index].designation,
+                    //         ),
+                    //         existingSelectedMemberId)
+                    //     : null;
 
-                      isSelected == true
-                          ? membersData.addMemberIDInSelectedList(
-                              existingSelectedMemberId)
-                          : null;
-                    },
-                    
-                    child: Container(
-                      height: 130,
-                      width: 130,
-                      decoration: BoxDecoration(
-                        //color: Colors.black,
-                        border: Border.all(
-                          color: Theme.of(context).primaryColor,
-                          width: 4,
-                        ),
-                        shape: BoxShape.circle,
+                    isSelected == true
+                        ? membersData
+                            .addMemberIDInSelectedList(existingSelectedMemberId)
+                        : null;
+                  },
+                  child: Container(
+                    height: 130,
+                    width: 130,
+                    decoration: BoxDecoration(
+                      //color: Colors.black,
+                      border: Border.all(
+                        color: Theme.of(context).primaryColor,
+                        width: 4,
                       ),
-                      child: CircleAvatar(
-                          //radius: 30,
-                          foregroundImage:
-                              FileImage(membersData.membersList[index].image)),
+                      shape: BoxShape.circle,
                     ),
+                    child: CircleAvatar(
+                        //radius: 30,
+                        foregroundImage:
+                            FileImage(membersData.membersList[index].image)),
                   ),
-                
+                ),
               ),
             ),
             const SizedBox(height: 5),

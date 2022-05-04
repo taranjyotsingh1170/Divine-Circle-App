@@ -4,7 +4,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 
-import '../providers/user.dart';
+import '../models/user.dart';
 
 class Members with ChangeNotifier {
   final List<User> _membersList = [
