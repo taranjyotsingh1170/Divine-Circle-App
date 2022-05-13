@@ -2,7 +2,7 @@ import 'dart:io';
 
 // ignore_for_file: invalid_use_of_visible_for_testing_member
 
-import 'package:divine_circle/providers/members.dart';
+import 'package:divine_circle/providers/wall_of_fame_members.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_cropper/image_cropper.dart';
@@ -10,7 +10,7 @@ import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
-import '../models/user.dart';
+import '../models/wall_of_fame_user.dart';
 // import 'package:path_provider/path_provider.dart' as syspaths;
 // import 'package:path/path.dart' as path;
 
@@ -26,7 +26,7 @@ class EditWallOfFameScreen extends StatefulWidget {
 class _EditWallOfFameScreenState extends State<EditWallOfFameScreen> {
   File? _storedImage;
 
-  final _newMember = User(
+  final _newMember = WallOfFameUser(
       id: DateTime.now().toString(),
       name: '',
       phoneNumber: 0,
@@ -102,7 +102,7 @@ class _EditWallOfFameScreenState extends State<EditWallOfFameScreen> {
       }
       _formKey.currentState!.save();
 
-      Provider.of<Members>(context, listen: false).addnewMember(_newMember);
+      Provider.of<WallOfFameMembers>(context, listen: false).addnewMember(_newMember);
       //print(_newMember.id);
 
       Navigator.of(context).pop();

@@ -1,13 +1,13 @@
 import 'dart:io';
 
-class User {
+class WallOfFameUser {
   String id;
   String name;
   int phoneNumber;
   File image;
   String designation;
 
-  User({
+  WallOfFameUser({
     required this.id,
     required this.name,
     required this.phoneNumber,

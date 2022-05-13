@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../screens/wall_of_fame_screen.dart';
-import '../screens/home_screen.dart';
+import '../screens/events_screen.dart';
 //import '../screens/event_calendar_screen.dart';
 
 
@@ -24,7 +24,7 @@ class AppDrawer extends StatelessWidget {
               style: GoogleFonts.inter(fontSize: 20,  fontWeight: FontWeight.w500),
             ),
             onTap: () {
-              Navigator.of(context).pushNamed(HomeScreen.routeName);
+              Navigator.of(context).pushNamed(EventsScreen.routeName);
             },
           ),
           const Divider(),

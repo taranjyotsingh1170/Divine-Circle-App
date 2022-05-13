@@ -4,8 +4,8 @@ import '../widgets/app_drawer.dart';
 
 import '../screens/event_calendar_screen.dart';
 import '../screens/home_screen.dart';
+import '../screens/events_screen.dart';
 import '../screens/profile_screen.dart';
-import '../screens/wall_of_fame_screen.dart';
 
 class TabsScreen extends StatefulWidget {
   const TabsScreen({Key? key}) : super(key: key);
@@ -28,7 +28,7 @@ class _TabsScreenState extends State<TabsScreen> {
         'title': const Text('Home Screen'),
       },
       {
-        'page': const WallOfFame(),
+        'page': const EventsScreen(),
         'title': const Text('Home Screen'),
       },
       {
@@ -53,8 +53,8 @@ class _TabsScreenState extends State<TabsScreen> {
       drawer: const AppDrawer(),
       bottomNavigationBar: NavigationBarTheme(
         data: const NavigationBarThemeData(
-          //indicatorColor: Colors.white.withOpacity(0.8),
-        ),
+            //indicatorColor: Colors.white.withOpacity(0.8),
+            ),
         child: NavigationBar(
           //backgroundColor: Colors.teal,
           animationDuration: const Duration(seconds: 1),

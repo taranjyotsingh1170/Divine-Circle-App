@@ -1,13 +1,7 @@
-//import 'package:divine_circle/screens/tabs_screen.dart';
+import '/screens/members_screen.dart';
 import 'package:flutter/material.dart';
-//import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
-
-import '../screens/add_event_screen.dart';
 
 import '../widgets/app_drawer.dart';
-
-import '../providers/events.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -16,35 +10,41 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final _events = Provider.of<Events>(context);
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('HomeScreen'),
         elevation: 0,
         actions: [
-          IconButton(
-            onPressed: () {
-              Navigator.of(context).pushNamed(AddEventScreen.routeName);
+          PopupMenuButton(
+            offset: const Offset(1, 45),
+            shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(10))),
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                child: const Text('Members'),
+                value: 1,
+                onTap: () {
+                  //Navigator.of(context).pushNamed(MembersScreen.routeName);
+                },
+              ),
+              // const PopupMenuItem(
+              //   child: Text('Content Team'),
+              //   value: 2,
+              // ),
+              // const PopupMenuItem(
+              //   child: Text('Design Team'),
+              //   value: 3,
+              // ),
+            ],
+            onSelected: (value) {
+              if (value == 1) {
+                Navigator.of(context).pushNamed(MembersScreen.routeName);
+              }
             },
-            icon: const Icon(Icons.add),
           ),
         ],
       ),
-      body: ListView.separated(
-        separatorBuilder: (ctx, index) => const Divider(),
-        itemCount: _events.eventList.length,
-        itemBuilder: (ctx, index) => ListTile(
-          title: Text(_events.eventList[index].eventName),
-          trailing: Text((_events.eventList[index].dateOfEvent)
-          //trailing: Text(DateFormat('dd/MM/yyyy').format(_events.eventList[index].dateOfEvent)),
-        ),
-        
-      ),
-      ),
       drawer: const AppDrawer(),
-      // bottomNavigationBar: const TabsScreen(),
-    )
-    ;
+    );
   }
 }

@@ -1,88 +1,75 @@
-// ignore_for_file: avoid_function_literals_in_foreach_calls
-
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 
-import '../models/user.dart';
+import '/models/member.dart';
 
 class Members with ChangeNotifier {
-  final List<User> _membersList = [
-    User(
-        id: 'm1',
-        name: 'Taran Jyot Singh',
-        phoneNumber: 9213041313,
-        image: File('assets/images/TJ.jpg'),
-        designation: 'Core Member'),
-    User(
-        id: 'm2',
-        name: 'KA',
-        phoneNumber: 9213041313,
-        image: File('assets/images/KA.jpg'),
-        designation: 'Member'),
-    User(
-        id: 'm3',
-        name: 'NJ',
-        phoneNumber: 9213041313,
-        image: File('assets/images/NJ.jpg'),
-        designation: 'Core Member'),
+  final List<Member> _listOfMembers = [
+    Member(
+        id: '1',
+        name: 'A',
+        phoneNumber: 1,
+        isInContentTeam: true,
+        isInDesignTeam: false),
+    Member(
+        id: '2',
+        name: 'B',
+        phoneNumber: 1,
+        isInDesignTeam: true,
+        isInContentTeam: false),
+    Member(id: '3', name: 'C', phoneNumber: 1, isInKirtanTeam: true),
+    Member(
+        id: '4',
+        name: 'D',
+        phoneNumber: 1,
+        isInPrTeam: true,
+        isInDesignTeam: false),
+    Member(
+        id: '5',
+        name: 'E',
+        phoneNumber: 1,
+        isInContentTeam: true,
+        isInDesignTeam: false),
+    Member(
+        id: '6',
+        name: 'F',
+        phoneNumber: 1,
+        isInDesignTeam: true,
+        isInContentTeam: false),
+    Member(id: '7', name: 'G', phoneNumber: 1, isInKirtanTeam: true),
+    Member(
+        id: '8',
+        name: 'H',
+        phoneNumber: 1,
+        isInContentTeam: true,
+        isInDesignTeam: false)
   ];
 
-  List<User> get membersList {
-    return [..._membersList];
+  List<Member> get memberList {
+    return [..._listOfMembers];
   }
 
-  final List<String> _selectedList = [];
-
-  List<String> get selectedList {
-    return [..._selectedList];
+  List<Member> get contentTeamMembers {
+    return _listOfMembers
+        .where((cmember) => cmember.isInContentTeam == true)
+        .toList();
   }
 
-  void addnewMember(User newMember) {
-    _membersList.add(newMember);
-
-    notifyListeners();
+  List<Member> get designTeamMembers {
+    return _listOfMembers
+        .where((dmember) => dmember.isInDesignTeam == true)
+        .toList();
   }
 
-  void deleteMember() {
-    // **************Delete one Item***************
-    // final existingMemberIndex =
-    //     _membersList.indexWhere((member) => member.id == id);
-    //var existingMember = _membersList[existingMemberIndex];
-    // _membersList.removeAt(existingMemberIndex);
-    // ********************************************
-    // final existingSelectedMemberIndex =
-    //     _selectedList.indexWhere((member) => member.id == id);
-    // for (int i = 0; i < _selectedList.length - 1; i++) {
-    //   _membersList
-    //       .removeWhere((member) => member.id == existingSelectedMemberIndex);
-    // }
-
-    _selectedList.forEach((element) {
-      _membersList.removeWhere((member) => member.id == element);
-    });
-    //print(element);
-    _selectedList.clear();
-    notifyListeners();
+  List<Member> get searchResults {
+    return [..._listOfMembers];
   }
 
-  void addMemberIDInSelectedList(String id) {
-    if (_selectedList.any((existingID) => existingID == id)) {
-      _selectedList.removeWhere((existingID) => existingID == id);
-      notifyListeners();
-      return;
-    }
-    // print(_selectedList.any((member) => member.id == id));
-    _selectedList.add(id);
-
-    //_selectedList.forEach((element) => print(element),);
-    notifyListeners();
+  List<Member> suggestionList(String query) {
+    return searchResults.where((searchResult) {
+      final result = searchResult.name.toLowerCase();
+      final input = query.toLowerCase();
+      return result.contains(input);
+    }).toList();
+    //return [];
   }
-
-  // void removeMemberFromSelectedList(String id) {
-  //   final existingMemberIndex =
-  //       _selectedList.indexWhere((member) => member.id == id);
-  //   _selectedList.removeAt(existingMemberIndex);
-  //   notifyListeners();
-  // }
 }

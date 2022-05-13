@@ -7,9 +7,10 @@ import 'package:table_calendar/table_calendar.dart';
 
 import '../models/event.dart';
 import '../widgets/app_drawer.dart';
+import 'add_event_screen.dart';
 
 class EventCalendarScreen extends StatefulWidget {
-  const EventCalendarScreen({Key? key} ) : super(key: key);
+  const EventCalendarScreen({Key? key}) : super(key: key);
   static const routeName = '/event-calendar';
 
   //final DateTime pickedDay;
@@ -78,7 +79,7 @@ class _EventCalendarScreenState extends State<EventCalendarScreen> {
                 _selectedDay = selectedDay;
                 _focusedDay = focusedDay; // update `_focusedDay` here as well
                 _selectedDayString =
-                    DateFormat('dd/MM/yyyy').format(_selectedDay);
+                    DateFormat('dd MMM, yyyy').format(_selectedDay);
                 //print(_selectedDayString);
 
                 //print(_selectedDay);
@@ -131,86 +132,91 @@ class _EventCalendarScreenState extends State<EventCalendarScreen> {
       drawer: const AppDrawer(),
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: Theme.of(context).primaryColor,
-        onPressed: () => showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('New Event'),
-            content: TextFormField(
-              controller: _eventController,
-            ),
-            actions: [
-              TextButton(
-                child: const Text('Cancel'),
-                onPressed: () => Navigator.pop(context),
-              ),
-              TextButton(
-                child: const Text('Ok'),
-                onPressed: () {
-                  if (_eventController.text.isEmpty) {
-                    Navigator.of(context).pop();
-                    return;
-                  }
-
-                  event.addEventinMySelectedEvents(
-                    _selectedDay,
-                    Event(
-                      id: DateTime.now().toString(),
-                      eventName: _eventController.text,
-                      dateOfEvent: _selectedDayString,
-                    ),
-                  );
-
-                  event.addEvent(
-                    Event(
-                      id: DateTime.now().toString(),
-                      eventName: _eventController.text,
-                      dateOfEvent: _selectedDayString,
-                    ),
-                  );
-
-//                  if (event.mySelectedEvents[_selectedDay] != null) {
-                  // _mySelectedEvents[_selectedDay]!.add(
-                  //   Event(
-                  //     id: DateTime.now().toString(),
-                  //     eventName: _eventController.text,
-                  //     dateOfEvent: _selectedDayString,
-                  //   ),
-                  // );
-                  // event.addEventinMySelectedEvents(
-                  //   _selectedDay,
-                  //   Event(
-                  //     id: DateTime.now().toString(),
-                  //     eventName: _eventController.text,
-                  //     dateOfEvent: _selectedDayString,
-                  //   ),
-                  // );
-//                  }
-                  // else {
-                  //   // _mySelectedEvents[_selectedDay] = [
-                  //   //   Event(
-                  //   //     id: DateTime.now().toString(),
-                  //   //     eventName: _eventController.text,
-                  //   //     dateOfEvent: _selectedDayString,
-                  //   //   )
-                  //   // ];
-                  //   event.mySelectedEvents[_selectedDay] = [
-                  //     Event(
-                  //       id: DateTime.now().toString(),
-                  //       eventName: _eventController.text,
-                  //       dateOfEvent: _selectedDayString,
-                  //     )
-                  //   ];
-                  // }
-
-                  Navigator.of(context).pop();
-                  _eventController.clear();
-                  setState(() {});
-                  return;
-                },
-              ),
-            ],
+        onPressed: () => Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => AddEventScreen(selectedDateString: _selectedDayString, selectedDate: _selectedDay,),
           ),
         ),
+//         onPressed: () => showDialog(
+//           context: context,
+//           builder: (context) => AlertDialog(
+//             title: const Text('New Event'),
+//             content: TextFormField(
+//               controller: _eventController,
+//             ),
+//             actions: [
+//               TextButton(
+//                 child: const Text('Cancel'),
+//                 onPressed: () => Navigator.pop(context),
+//               ),
+//               TextButton(
+//                 child: const Text('Ok'),
+//                 onPressed: () {
+//                   if (_eventController.text.isEmpty) {
+//                     Navigator.of(context).pop();
+//                     return;
+//                   }
+
+//                   // event.addEventinMySelectedEvents(
+//                   //   _selectedDay,
+//                   //   Event(
+//                   //     id: DateTime.now().toString(),
+//                   //     eventName: _eventController.text,
+//                   //     dateOfEvent: _selectedDayString,
+//                   //   ),
+//                   // );
+
+//                   // event.addEvent(
+//                   //   Event(
+//                   //     id: DateTime.now().toString(),
+//                   //     eventName: _eventController.text,
+//                   //     dateOfEvent: _selectedDayString,
+//                   //   ),
+//                   );
+
+// //                  if (event.mySelectedEvents[_selectedDay] != null) {
+//                   // _mySelectedEvents[_selectedDay]!.add(
+//                   //   Event(
+//                   //     id: DateTime.now().toString(),
+//                   //     eventName: _eventController.text,
+//                   //     dateOfEvent: _selectedDayString,
+//                   //   ),
+//                   // );
+//                   // event.addEventinMySelectedEvents(
+//                   //   _selectedDay,
+//                   //   Event(
+//                   //     id: DateTime.now().toString(),
+//                   //     eventName: _eventController.text,
+//                   //     dateOfEvent: _selectedDayString,
+//                   //   ),
+//                   // );
+// //                  }
+//                   // else {
+//                   //   // _mySelectedEvents[_selectedDay] = [
+//                   //   //   Event(
+//                   //   //     id: DateTime.now().toString(),
+//                   //   //     eventName: _eventController.text,
+//                   //   //     dateOfEvent: _selectedDayString,
+//                   //   //   )
+//                   //   // ];
+//                   //   event.mySelectedEvents[_selectedDay] = [
+//                   //     Event(
+//                   //       id: DateTime.now().toString(),
+//                   //       eventName: _eventController.text,
+//                   //       dateOfEvent: _selectedDayString,
+//                   //     )
+//                   //   ];
+//                   // }
+
+//                   Navigator.of(context).pop();
+//                   _eventController.clear();
+//                   setState(() {});
+//                   return;
+//                 },
+//               ),
+//             ],
+//           ),
+
         label: const Text('Add Event'),
         icon: const Icon(Icons.add),
       ),

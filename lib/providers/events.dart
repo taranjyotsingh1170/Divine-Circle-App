@@ -8,19 +8,28 @@ class Events with ChangeNotifier {
       id: '1',
       eventName: 'A',
       //dateOfEvent: DateTime.now(),
-      dateOfEvent: DateFormat('dd/MM/yyyy').format(DateTime.now()),
+      dateOfEvent: DateFormat('dd MMM, yyyy').format(DateTime.now()),
+      timeOfEvent: '12 : 30 PM',
+      eventDescription:
+          'alternatively, we can click on the bubbles representing the members/volunteers so select members if we don\'t want to write email or name... just an alternative but quite useful',
     ),
     Event(
       id: '2',
       eventName: 'B',
       //dateOfEvent: DateTime.now(),
-      dateOfEvent: DateFormat('dd/MM/yyyy').format(DateTime.now()),
+      dateOfEvent: DateFormat('dd MMM, yyyy').format(DateTime.now()),
+      timeOfEvent: '10 : 00 AM',
+      eventDescription:
+          'its assumed that user(core member) selected 9th may,2022 date and clicked on "create event button" then this whole screen shows up',
     ),
     Event(
       id: '3',
       eventName: 'C',
       //dateOfEvent: DateTime.now(),
-      dateOfEvent: DateFormat('dd/MM/yyyy').format(DateTime.now()),
+      dateOfEvent: DateFormat('dd MMM, yyyy').format(DateTime.now()),
+      timeOfEvent: '2 : 00 PM',
+      eventDescription:
+          'to-do list ki jagah we can write your tasks (these would contain all tasks/roles not event wise, event wise toh event navigation m jaaake exclusively mil jayengey user ko)',
     ),
   ];
 
@@ -34,11 +43,6 @@ class Events with ChangeNotifier {
         ((event1, event2) => event1.dateOfEvent.compareTo(event2.dateOfEvent)));
     notifyListeners();
   }
-
-  // void sortEvents(Event newEvent) {
-  //   _eventList.sort(
-  //       ((event1, event2) => event1.dateOfEvent.compareTo(event2.dateOfEvent)));
-  // }
 
   final Map<DateTime, List<Event>> _mySelectedEvents = {};
 
@@ -57,15 +61,4 @@ class Events with ChangeNotifier {
 
     notifyListeners();
   }
-
-  // DateTime _date = DateTime.now();
-
-  // DateTime get date {
-  //   return _date;
-  // }
-
-  // List<Event> get getEventsFromDay {
-  //   return _mySelectedEvents[_date] ?? [];
-  //   //return event.mySelectedEvents[date] ?? [];
-  // }
 }

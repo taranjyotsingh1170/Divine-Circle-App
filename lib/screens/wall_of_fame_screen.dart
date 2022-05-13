@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
-import '../providers/members.dart';
+import '../providers/wall_of_fame_members.dart';
 //import '../providers/user.dart';
 
 import '../widgets/app_drawer.dart';
@@ -25,7 +25,7 @@ class _WallOfFameState extends State<WallOfFame> {
 
   @override
   Widget build(BuildContext context) {
-    final membersData = Provider.of<Members>(context);
+    final membersData = Provider.of<WallOfFameMembers>(context);
 
     return Scaffold(
       appBar: (newAppBar == false || membersData.selectedList.isEmpty)

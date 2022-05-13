@@ -50,6 +50,8 @@ dependencies:
   flutter_rounded_date_picker: ^2.0.2
   intl: ^0.17.0
   table_calendar: ^3.0.5
+  flutter_time_picker_spinner: ^2.0.0
+  time_picker_sheet: ^0.0.2+1
   
   
   
