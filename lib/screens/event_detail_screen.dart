@@ -24,6 +24,13 @@ class EventDetailScreen extends StatelessWidget {
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black),
         //title: Text(currentEvent.eventName),
+        actions:   [
+          IconButton(onPressed: (){}, icon: const Icon(Icons.delete),),
+          const SizedBox(width: 10,),
+          IconButton(onPressed: (){}, icon: const Icon(Icons.edit_outlined),),
+          
+          //const Padding(padding:  EdgeInsets.only(right: 20))
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12.0),
@@ -60,21 +67,24 @@ class EventDetailScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 Row(
-                  children:  [
-                    const CircleAvatar(child: Icon(Icons.account_circle_outlined)),
-                    const SizedBox(width: 15,),
+                  children: [
+                    const CircleAvatar(
+                        child: Icon(Icons.account_circle_outlined)),
+                    const SizedBox(
+                      width: 15,
+                    ),
                     Text('Simran', style: GoogleFonts.inter(fontSize: 18)),
                   ],
                 ),
                 const SizedBox(width: 40),
                 Row(
-                  children:  [
-                    const CircleAvatar(child: Icon(Icons.account_circle_outlined)),
+                  children: [
+                    const CircleAvatar(
+                        child: Icon(Icons.account_circle_outlined)),
                     const SizedBox(width: 15),
                     Text('Taran', style: GoogleFonts.inter(fontSize: 18)),
                   ],
                 ),
-                
               ],
             ),
             const SizedBox(
@@ -92,21 +102,32 @@ class EventDetailScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 Row(
-                  children:  [
-                    const CircleAvatar(child: Icon(Icons.account_circle_outlined)),
-                    const SizedBox(width: 15,),
-                    Text('Saheb', style: GoogleFonts.inter(fontSize: 18),),
+                  children: [
+                    const CircleAvatar(
+                        child: Icon(Icons.account_circle_outlined)),
+                    const SizedBox(
+                      width: 15,
+                    ),
+                    Text(
+                      'Saheb',
+                      style: GoogleFonts.inter(fontSize: 18),
+                    ),
                   ],
                 ),
                 const SizedBox(width: 40),
                 Row(
-                  children:  [
-                    const CircleAvatar(child: Icon(Icons.account_circle_outlined)),
-                    const SizedBox(width: 15,),
-                    Text('Pratyush', style: GoogleFonts.inter(fontSize: 18),),
+                  children: [
+                    const CircleAvatar(
+                        child: Icon(Icons.account_circle_outlined)),
+                    const SizedBox(
+                      width: 15,
+                    ),
+                    Text(
+                      'Pratyush',
+                      style: GoogleFonts.inter(fontSize: 18),
+                    ),
                   ],
                 ),
-                
               ],
             ),
             const SizedBox(

@@ -55,7 +55,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title:  Text('Divine Circle', style: GoogleFonts.inter(fontWeight: FontWeight.w500)),
+        title: Text('Divine Circle',
+            style: GoogleFonts.inter(
+                fontWeight: FontWeight.w500, color: Colors.white)),
         elevation: 0,
         centerTitle: true,
         //backgroundColor: Theme.of(context).primaryColor,
@@ -111,7 +113,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 },
                 child: Text(
                   'Get started',
-                  style: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.w500),
+                  style: GoogleFonts.inter(
+                      fontSize: 20, fontWeight: FontWeight.w500, color: Colors.white),
                 ),
                 style: ElevatedButton.styleFrom(
                   primary: Theme.of(context).primaryColor,

@@ -61,4 +61,10 @@ class Events with ChangeNotifier {
 
     notifyListeners();
   }
+
+  void deleteEvent(String id, DateTime selectedDay) {
+    _eventList.removeWhere((event) => event.id == id);
+    _mySelectedEvents[selectedDay]!.removeWhere((event) => event.id == id);
+    notifyListeners();
+  }
 }

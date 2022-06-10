@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../screens/wall_of_fame_screen.dart';
-import '../screens/events_screen.dart';
-//import '../screens/event_calendar_screen.dart';
+import '../screens/tabs_screen.dart';
 
+import '../screens/wall_of_fame_screen.dart';
+//import '../screens/events_screen.dart';
+//import '../screens/event_calendar_screen.dart';
 
 class AppDrawer extends StatelessWidget {
   const AppDrawer({Key? key}) : super(key: key);
@@ -12,10 +13,13 @@ class AppDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
+      //backgroundColor: Colors.white,
       child: Column(
         children: [
           AppBar(
-            title: const Text('Hnlo'),
+            title:  Text('Hnlo', style: GoogleFonts.inter(
+                fontWeight: FontWeight.w500, color: Colors.white)),
+             iconTheme: Theme.of(context).iconTheme,
             backgroundColor: Theme.of(context).primaryColor,
           ), ListTile(
             leading: const Icon(Icons.star_outline),
@@ -24,7 +28,7 @@ class AppDrawer extends StatelessWidget {
               style: GoogleFonts.inter(fontSize: 20,  fontWeight: FontWeight.w500),
             ),
             onTap: () {
-              Navigator.of(context).pushNamed(EventsScreen.routeName);
+              Navigator.of(context).pushNamed(TabsScreen.routeName);
             },
           ),
           const Divider(),
@@ -40,13 +44,13 @@ class AppDrawer extends StatelessWidget {
           ),
           // const Divider(),
           // ListTile(
-          //   leading: const Icon(Icons.event),
+          //   leading: const Icon(Icons.list_alt_rounded),
           //   title:  Text(
-          //     'Event Calendar',
+          //     'To Do List',
           //     style: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.w500),
           //   ),
           //   onTap: () {
-          //     Navigator.of(context).pushNamed(EventCalendarScreen.routeName);
+          //     Navigator.of(context).pushNamed(ToDoListScreen.routeName);
           //   },
           // ),
         ],

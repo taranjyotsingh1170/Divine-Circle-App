@@ -1,5 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:divine_circle/models/member.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import '/providers/members.dart';
@@ -24,7 +28,7 @@ class _MembersScreenState extends State<MembersScreen> {
   bool _showContentTeamMembers = false;
   bool _showDesignTeamMembers = false;
   List<Member> _members = [];
-  
+
   @override
   Widget build(BuildContext context) {
     final _membersData = Provider.of<Members>(context);
@@ -45,7 +49,10 @@ class _MembersScreenState extends State<MembersScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Members'),
+        title: Text('Members',
+            style: GoogleFonts.inter(
+                fontWeight: FontWeight.w500, color: Colors.white)),
+        iconTheme: Theme.of(context).iconTheme,
         actions: [
           PopupMenuButton(
             offset: const Offset(1, 45),
@@ -97,11 +104,113 @@ class _MembersScreenState extends State<MembersScreen> {
           ),
         ],
       ),
-      body: ListView.builder(
-        itemCount: _members.length,
-        itemBuilder: (context, index) => ListTile(
-          title: Text(_members[index].name),
-        ),
+      body: StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance.collection('users').snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return const Center(
+              child: Text('Loading...'),
+            );
+          } else {
+            return ListView.builder(
+              itemCount: snapshot.data!.docs.length ,
+              itemBuilder: (ctx, index) {
+                bool isInDesignTeam =
+                    snapshot.data!.docs[index]['isInDesignTeam'];
+                bool isInContentTeam =
+                    snapshot.data!.docs[index]['isInContentTeam'];
+                bool isInPrTeam = snapshot.data!.docs[index]['isInPrTeam'];
+                bool isInKirtanTeam =
+                    snapshot.data!.docs[index]['isInKirtanTeam'];
+                
+                
+                if (snapshot.data!.docs[index]['id'] ==
+                    FirebaseAuth.instance.currentUser!.uid) {
+                      return const SizedBox(height: 0,width: 0);
+                  //index = index + 1;
+                }
+
+                return ListTile(
+                  title: Text(snapshot.data!.docs[index]['name']),
+                  onLongPress: () {
+                    showDialog(
+                      context: context,
+                      builder: (_) => AlertDialog(
+                        content:
+                            Column(mainAxisSize: MainAxisSize.min, children: [
+                          TextButton(
+                            child: !snapshot.data!.docs[index]
+                                    ['isInContentTeam']
+                                ? const Text('Add to Content Team')
+                                : const Text('Remove from Content Team'),
+                            onPressed: () {
+                              isInContentTeam = !isInContentTeam;
+                              FirebaseFirestore.instance
+                                  .collection('users')
+                                  .doc(snapshot.data!.docs[index]['id'])
+                                  .update({
+                                'isInContentTeam': isInContentTeam,
+                              });
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                          const Divider(),
+                          TextButton(
+                            child: !snapshot.data!.docs[index]['isInDesignTeam']
+                                ? const Text('Add to Design Team')
+                                : const Text('Remove from Design Team'),
+                            onPressed: () {
+                              isInDesignTeam = !isInDesignTeam;
+                              FirebaseFirestore.instance
+                                  .collection('users')
+                                  .doc(snapshot.data!.docs[index]['id'])
+                                  .update({
+                                'isInDesignTeam': isInDesignTeam,
+                              });
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                          const Divider(),
+                          TextButton(
+                            child: !snapshot.data!.docs[index]['isInPrTeam']
+                                ? const Text('Add to PR Team')
+                                : const Text('Remove from PR Team'),
+                            onPressed: () {
+                              isInPrTeam = !isInPrTeam;
+                              FirebaseFirestore.instance
+                                  .collection('users')
+                                  .doc(snapshot.data!.docs[index]['id'])
+                                  .update({
+                                'isInPrTeam': isInPrTeam,
+                              });
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                          const Divider(),
+                          TextButton(
+                            child: !snapshot.data!.docs[index]['isInKirtanTeam']
+                                ? const Text('Add to Kirtan Team')
+                                : const Text('Remove from Kirtan Team'),
+                            onPressed: () {
+                              isInKirtanTeam = !isInKirtanTeam;
+                              FirebaseFirestore.instance
+                                  .collection('users')
+                                  .doc(snapshot.data!.docs[index]['id'])
+                                  .update({
+                                'isInKirtanTeam': isInKirtanTeam,
+                              });
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                        ]),
+                      ),
+                    );
+                  },
+                );
+              },
+            );
+          }
+        },
       ),
     );
   }

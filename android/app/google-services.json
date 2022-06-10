@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "581573208720",
+    "project_id": "divine-circle",
+    "storage_bucket": "divine-circle.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:581573208720:android:4a4e5fda558f42d4f20615",
+        "android_client_info": {
+          "package_name": "com.example.divine_circle"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "581573208720-af8qataout5g861836k5tmalovpt7pu8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB6OqNbBy5repofjGGKRy4WQvjzjJzjfQc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "581573208720-af8qataout5g861836k5tmalovpt7pu8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

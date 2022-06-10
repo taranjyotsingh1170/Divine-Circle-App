@@ -1,0 +1,5 @@
+enum MemberType {
+  coreMember,
+  normalMember,
+}
+

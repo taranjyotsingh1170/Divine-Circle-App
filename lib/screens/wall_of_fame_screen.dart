@@ -32,8 +32,10 @@ class _WallOfFameState extends State<WallOfFame> {
           ? AppBar(
               title: Text(
                 'Wall of Fame',
-                style: GoogleFonts.inter(fontWeight: FontWeight.w500),
+                style: GoogleFonts.inter(
+                fontWeight: FontWeight.w500, color: Colors.white),
               ),
+               iconTheme: Theme.of(context).iconTheme,
               elevation: 0,
               actions: [
                 IconButton(

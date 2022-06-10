@@ -1,6 +1,15 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:divine_circle/models/member.dart';
+//import 'package:divine_circle/models/member_type.dart';
+
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:email_validator/email_validator.dart';
-import 'package:flutter_pw_validator/flutter_pw_validator.dart';
+//import 'package:flutter_pw_validator/flutter_pw_validator.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+
+import '../providers/members.dart';
 
 import '../screens/tabs_screen.dart';
 
@@ -27,6 +36,17 @@ class _LoginScreenState extends State<LoginScreen>
   bool _ispasswordVisible = false;
   bool _ispassVisible = false;
   final passController = TextEditingController();
+  final Member _member = Member(
+      id: '',
+      email: '',
+      name: '',
+      phoneNumber: 0,
+      isInContentTeam: false,
+      isInDesignTeam: false,
+      isInPrTeam: false,
+      isInKirtanTeam: false);
+
+  //final _memberType = MemberType.normalMember;
 
   @override
   void initState() {
@@ -90,7 +110,7 @@ class _LoginScreenState extends State<LoginScreen>
     );
   }
 
-  void saveForm() {
+  void saveForm(context) async {
     final isValid = _formKey.currentState!.validate();
 
     if (!isValid) {
@@ -98,6 +118,46 @@ class _LoginScreenState extends State<LoginScreen>
     }
 
     _formKey.currentState!.save();
+
+    if (_authmode == AuthMode.login) {
+      try {
+        FirebaseAuth.instance.signInWithEmailAndPassword(
+            email: _member.email, password: passController.text);
+      } catch (error) {
+        //print(error);
+      }
+
+      Navigator.of(context).pushNamed(TabsScreen.routeName);
+    } else if (_authmode == AuthMode.signup) {
+      UserCredential userCredential = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(
+              email: _member.email, password: passController.text);
+
+      final member = Provider.of<Members>(context, listen: false);
+
+      try {
+        final userId = userCredential.user!.uid;
+        _member.id = userId;
+
+        member.addMember(_member);
+        FirebaseFirestore.instance.collection('users').doc(userId).set({
+          'id': FirebaseAuth.instance.currentUser!.uid,
+          'email id': _member.email,
+          'name': _member.name,
+          'Phone number': _member.phoneNumber,
+          'isInDesignTeam': _member.isInDesignTeam,
+          'isInContentTeam': _member.isInContentTeam,
+          'isInPrTeam': _member.isInPrTeam,
+          'isInKirtanTeam': _member.isInKirtanTeam,
+          //'member type': _memberType,
+        });
+
+        Navigator.of(context).pushNamed(TabsScreen.routeName);
+      } catch (error) {
+        return null;
+      }
+    }
+
     //Navigator.of(context).pushNamed(HomeScreen.routeName);
   }
 
@@ -105,7 +165,10 @@ class _LoginScreenState extends State<LoginScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_authmode == AuthMode.login ? 'Login' : 'Signup'),
+        title: Text(_authmode == AuthMode.login ? 'Login' : 'Signup',
+            style: GoogleFonts.inter(
+                fontWeight: FontWeight.w500, color: Colors.white)),
+        iconTheme: Theme.of(context).iconTheme,
         //backgroundColor: Theme.of(context).primaryColor,
         elevation: 0,
       ),
@@ -132,50 +195,97 @@ class _LoginScreenState extends State<LoginScreen>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           _fieldHead('Enter email'),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 15),
-                            margin: const EdgeInsets.only(top: 10),
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey),
-                              borderRadius: BorderRadius.circular(30),
-                            ),
+                          SizedBox(
+                            // padding: const EdgeInsets.symmetric(horizontal: 15),
+                            // margin: const EdgeInsets.only(top: 10),
+                            // decoration: BoxDecoration(
+                            //   border: Border.all(color: Colors.grey),
+                            //   borderRadius: BorderRadius.circular(30),
+                            // ),
                             child: TextFormField(
+                                decoration: const InputDecoration(
+                                    //contentPadding: EdgeInsets.all(20),
+                                    //labelText: 'Email',
+                                    //border: InputBorder.none,
+                                    ),
+                                textCapitalization:
+                                    TextCapitalization.sentences,
+                                keyboardType: TextInputType.emailAddress,
+                                validator: (email) {
+                                  if (email!.isEmpty) {
+                                    return '* required';
+                                  }
+                                  if (!EmailValidator.validate(email)) {
+                                    return 'Enter a valid email address';
+                                  }
+
+                                  // else if (!value.contains('@')) {
+                                  //   return 'Invalid email!';
+                                  // }
+                                  return null;
+                                },
+                                onSaved: (email) {
+                                  _member.email = email!;
+                                }),
+                          ),
+                          if (_authmode == AuthMode.signup)
+                            _fieldHead('Enter name'),
+                          if (_authmode == AuthMode.signup)
+                            TextFormField(
+                              //obscureText: !_ispassVisible,
                               decoration: const InputDecoration(
                                 contentPadding: EdgeInsets.all(20),
-                                //labelText: 'Email',
-                                border: InputBorder.none,
+                                //labelText: 'Password',
+                                //border: InputBorder.none,
                               ),
+                              keyboardType: TextInputType.text,
                               textCapitalization: TextCapitalization.sentences,
-                              keyboardType: TextInputType.emailAddress,
-                              validator: (value) {
-                                if (!EmailValidator.validate(value!)) {
-                                  return 'Enter a valid email address';
-                                }
-                                if (value.isEmpty) {
+                              validator: (name) {
+                                if (name!.isEmpty) {
                                   return '* required';
                                 }
-                                // else if (!value.contains('@')) {
-                                //   return 'Invalid email!';
-                                // }
                                 return null;
                               },
+                              onSaved: (name) {
+                                _member.name = name!;
+                              },
                             ),
-                          ),
+                          if (_authmode == AuthMode.signup)
+                            _fieldHead('Enter Phone number'),
+                          if (_authmode == AuthMode.signup)
+                            TextFormField(
+                              //obscureText: !_ispassVisible,
+                              decoration: const InputDecoration(
+                                contentPadding: EdgeInsets.all(20),
+                                //labelText: 'Password',
+                                //border: InputBorder.none,
+                              ),
+                              keyboardType: TextInputType.phone,
+                              validator: (number) {
+                                if (number!.isEmpty) {
+                                  return '* required';
+                                }
+                                return null;
+                              },
+                              onSaved: (number) {
+                                _member.phoneNumber = int.parse(number!);
+                              },
+                            ),
                           _fieldHead('Enter password'),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 15),
-                            margin: const EdgeInsets.only(top: 10),
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey),
-                              borderRadius: BorderRadius.circular(35),
-                            ),
+                          SizedBox(
+                            // padding: const EdgeInsets.symmetric(horizontal: 15),
+                            // margin: const EdgeInsets.only(top: 10),
+                            // decoration: BoxDecoration(
+                            //   border: Border.all(color: Colors.grey),
+                            //   borderRadius: BorderRadius.circular(35),
+                            // ),
                             child: TextFormField(
                               controller: passController,
                               obscureText: !_ispassVisible,
                               decoration: InputDecoration(
                                 contentPadding: const EdgeInsets.all(20),
                                 //labelText: 'Password',
-                                border: InputBorder.none,
+                                //border: InputBorder.none,
                                 suffixIcon: IconButton(
                                   icon: _ispassVisible
                                       ? const Icon(Icons.visibility_off_rounded)
@@ -187,17 +297,18 @@ class _LoginScreenState extends State<LoginScreen>
                                   },
                                 ),
                               ),
+                              textCapitalization: TextCapitalization.sentences,
                               keyboardType: TextInputType.text,
                               validator: (value) {
-                                FlutterPwValidator(
-                                  width: 400,
-                                  height: 150,
-                                  minLength: 6,
-                                  numericCharCount: 1,
-                                  specialCharCount: 1,
-                                  onSuccess: () {},
-                                  controller: passController,
-                                );
+                                // FlutterPwValidator(
+                                //   width: 400,
+                                //   height: 150,
+                                //   minLength: 6,
+                                //   numericCharCount: 1,
+                                //   specialCharCount: 1,
+                                //   onSuccess: () {},
+                                //   controller: passController,
+                                // );
                                 if (value!.isEmpty) {
                                   return '* required';
                                 }
@@ -225,20 +336,22 @@ class _LoginScreenState extends State<LoginScreen>
                                 child: AnimatedContainer(
                                   //curve: Curves.easeIn,
                                   duration: const Duration(seconds: 2),
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 15),
-                                  margin: const EdgeInsets.only(top: 10),
-                                  decoration: BoxDecoration(
-                                    border: Border.all(color: Colors.grey),
-                                    borderRadius: BorderRadius.circular(35),
-                                  ),
+                                  // padding: const EdgeInsets.symmetric(
+                                  //     horizontal: 15),
+                                  // margin: const EdgeInsets.only(top: 10),
+                                  // decoration: BoxDecoration(
+                                  //   border: Border.all(color: Colors.grey),
+                                  //   borderRadius: BorderRadius.circular(35),
+                                  // ),
                                   child: TextFormField(
                                     enabled: _authmode == AuthMode.signup,
                                     obscureText: !_ispasswordVisible,
+                                    textCapitalization:
+                                        TextCapitalization.sentences,
                                     decoration: InputDecoration(
                                       contentPadding: const EdgeInsets.all(20),
                                       //labelText: 'Re-enter password',
-                                      border: InputBorder.none,
+                                      //border: InputBorder.none,
                                       suffixIcon: IconButton(
                                         icon: _ispasswordVisible
                                             ? const Icon(
@@ -281,12 +394,14 @@ class _LoginScreenState extends State<LoginScreen>
               children: [
                 ElevatedButton(
                   onPressed: () {
-                    saveForm();
-                    Navigator.of(context).pushNamed(TabsScreen.routeName);
+                    saveForm(context);
                   },
                   child: Text(
                     _authmode == AuthMode.login ? 'Login' : 'Signup',
-                    style: const TextStyle(fontSize: 20),
+                    style: GoogleFonts.inter(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.white),
                   ),
                   style: ElevatedButton.styleFrom(
                     primary: Theme.of(context).primaryColor,

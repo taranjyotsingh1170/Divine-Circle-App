@@ -55,11 +55,14 @@ class _EventCalendarScreenState extends State<EventCalendarScreen> {
       appBar: AppBar(
         title: Text(
           'Event Calendar',
-          style: GoogleFonts.inter(fontWeight: FontWeight.w500),
+          style: GoogleFonts.inter(
+              fontWeight: FontWeight.w500, color: Colors.white),
         ),
+        iconTheme: Theme.of(context).iconTheme,
         elevation: 0,
       ),
       body: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [
           TableCalendar(
             focusedDay: _focusedDay,
@@ -117,12 +120,75 @@ class _EventCalendarScreenState extends State<EventCalendarScreen> {
             child: SingleChildScrollView(
               child: Column(
                 children: [
-                  ..._getEventsFromDay(_selectedDay).map(
-                    (Event event) => ListTile(
-                      title: Text(event.eventName),
-                      trailing: Text(event.dateOfEvent),
-                    ),
+                  Text(
+                    'Events',
+                    style: GoogleFonts.inter(
+                        fontSize: 20, fontWeight: FontWeight.bold),
                   ),
+                  ..._getEventsFromDay(_selectedDay).map(
+                    (Event currentEvent) => Dismissible(
+                      key: ValueKey(currentEvent.id),
+                      direction: DismissDirection.endToStart,
+                      background: Container(
+                        alignment: Alignment.centerRight,
+                        color: Theme.of(context).errorColor,
+                        padding: const EdgeInsets.only(right: 20),
+                        margin: const EdgeInsets.symmetric(
+                            horizontal: 15, vertical: 4),
+                        child: const Icon(
+                          Icons.delete,
+                          color: Colors.white,
+                          size: 30,
+                        ),
+                      ),
+                      child: ListTile(
+                        title: Text(currentEvent.eventName),
+                        trailing: Text(currentEvent.dateOfEvent),
+                      ),
+                      confirmDismiss: (direction) {
+                        return showDialog(
+                            context: context,
+                            builder: (ctx) => AlertDialog(
+                                  title: const Text('Are you sure?'),
+                                  content: const Text(
+                                      'Do you want to remove this event?'),
+                                  actions: [
+                                    TextButton(
+                                      child: const Text('Yes'),
+                                      onPressed: () {
+                                        Navigator.of(ctx).pop(true);
+                                      },
+                                    ),
+                                    TextButton(
+                                      child: const Text('No'),
+                                      onPressed: () {
+                                        Navigator.of(ctx).pop();
+                                      },
+                                    ),
+                                  ],
+                                ));
+                      },
+                      onDismissed: (direction) {
+                        //FirebaseFirestore.instance.collection('List of Events').doc()
+                        // StreamBuilder<QuerySnapshot>(
+                        //   stream: FirebaseFirestore.instance.collection('List of Events').snapshots(),
+                        //   builder: (context, snapshot) {
+                        //     snapshot.data!.docs[]
+                        //   },
+                        // );
+                        setState(() {
+                          event.deleteEvent(currentEvent.id, _selectedDay);
+                        });
+                        //( '${currentEvent.eventName} deleted');
+                      },
+                    ),
+
+                    // child: ListTile(
+                    //   title: Text(currentEvent.eventName),
+                    //   trailing: Text(currentEvent.dateOfEvent),
+                    // ),
+                  ),
+                  const Divider(),
                 ],
               ),
             ),
@@ -134,7 +200,10 @@ class _EventCalendarScreenState extends State<EventCalendarScreen> {
         backgroundColor: Theme.of(context).primaryColor,
         onPressed: () => Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (_) => AddEventScreen(selectedDateString: _selectedDayString, selectedDate: _selectedDay,),
+            builder: (_) => AddEventScreen(
+              selectedDateString: _selectedDayString,
+              selectedDate: _selectedDay,
+            ),
           ),
         ),
 //         onPressed: () => showDialog(
