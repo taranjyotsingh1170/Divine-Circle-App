@@ -1,18 +1,19 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:bubble/bubble.dart';
 
 class OneToOneChatScreen extends StatefulWidget {
-  const OneToOneChatScreen({
-    Key? key,
-    required this.name,
-    required this.receiverName,
-  }) : super(key: key);
+  const OneToOneChatScreen(
+      {Key? key,
+      required this.name,
+      required this.receiverName,
+      required this.senderName})
+      : super(key: key);
 
   final String name;
   final String receiverName;
+  final String senderName;
 
   @override
   State<OneToOneChatScreen> createState() => _OneToOneChatScreenState();
@@ -21,12 +22,14 @@ class OneToOneChatScreen extends StatefulWidget {
 class _OneToOneChatScreenState extends State<OneToOneChatScreen> {
   final TextEditingController _msgController = TextEditingController();
   String chatMessage = '';
-  String senderId = FirebaseAuth.instance.currentUser!.uid;
+  //String senderId = FirebaseAuth.instance.currentUser!.uid;
 
-  String getGroupId(String receiverName, String senderId) {
+  String getChatId(String receiverName, String senderName) {
     String _groupId;
     String _receiverName = receiverName;
-    String _senderId = senderId;
+    String _senderId = senderName;
+
+    //_groupId = _receiverName + '_' + _senderId;
 
     _senderId.hashCode <= _receiverName.hashCode
         ? _groupId = _senderId + '_' + _receiverName
@@ -50,10 +53,8 @@ class _OneToOneChatScreenState extends State<OneToOneChatScreen> {
             child: StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
                   .collection('Messages')
-                  .doc('groupId')
-                  .collection(getGroupId(widget.receiverName, senderId))
-                  .doc('User Messages')
-                  .collection('messages')
+                  .doc('chatId')
+                  .collection(getChatId(widget.receiverName, widget.senderName))
                   .orderBy('timestamp', descending: true)
                   .snapshots(),
               builder: (context, snapshot) {
@@ -66,7 +67,6 @@ class _OneToOneChatScreenState extends State<OneToOneChatScreen> {
                     itemBuilder: (ctx, index) {
                       chatMessage =
                           snapshot.data!.docs[index]['content'].toString();
-
                       return Bubble(
                         color: Colors.red,
                         borderWidth: 25,
@@ -117,19 +117,29 @@ class _OneToOneChatScreenState extends State<OneToOneChatScreen> {
                     BoxDecoration(shape: BoxShape.circle, border: Border.all()),
                 child: IconButton(
                   onPressed: () async {
+                    final chatDocId = FirebaseFirestore.instance
+                        .collection('Messages')
+                        .doc('chatId')
+                        .collection(
+                            getChatId(widget.receiverName, widget.senderName))
+                        .doc()
+                        .id;
+
                     await FirebaseFirestore.instance
                         .collection('Messages')
-                        .doc('groupId')
-                        .collection(getGroupId(widget.receiverName, senderId))
-                        .doc('User Messages')
-                        .collection('messages')
-                        .add({
-                      'reciever_id': widget.receiverName,
-                      'sender_id': senderId,
+                        .doc('chatId')
+                        .collection(
+                            getChatId(widget.receiverName, widget.senderName))
+                        .doc(chatDocId)
+                        .set({
+                      'chatDocId': chatDocId,
+                      'receiver_name': widget.receiverName,
+                      'sender_name': widget.senderName,
                       'content': _msgController.text,
                       'timestamp': DateTime.now(),
                       'type': 'text',
-                      'groupId': getGroupId(widget.receiverName, senderId),
+                      'chatId':
+                          getChatId(widget.receiverName, widget.senderName),
                     });
 
                     _msgController.text = '';

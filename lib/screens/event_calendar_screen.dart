@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:divine_circle/providers/events.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -62,7 +63,7 @@ class _EventCalendarScreenState extends State<EventCalendarScreen> {
         elevation: 0,
       ),
       body: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           TableCalendar(
             focusedDay: _focusedDay,
@@ -100,6 +101,10 @@ class _EventCalendarScreenState extends State<EventCalendarScreen> {
             calendarStyle: CalendarStyle(
               todayDecoration: BoxDecoration(
                 color: Theme.of(context).primaryColor,
+                // border: const Border.symmetric(
+                //   vertical: BorderSide(width: 10)
+                //   horizontal:
+                //),
                 shape: BoxShape.circle,
               ),
               selectedTextStyle: const TextStyle(color: Colors.black),
@@ -116,83 +121,162 @@ class _EventCalendarScreenState extends State<EventCalendarScreen> {
               formatButtonVisible: false,
             ),
           ),
-          Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  Text(
-                    'Events',
-                    style: GoogleFonts.inter(
-                        fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                  ..._getEventsFromDay(_selectedDay).map(
-                    (Event currentEvent) => Dismissible(
-                      key: ValueKey(currentEvent.id),
-                      direction: DismissDirection.endToStart,
-                      background: Container(
-                        alignment: Alignment.centerRight,
-                        color: Theme.of(context).errorColor,
-                        padding: const EdgeInsets.only(right: 20),
-                        margin: const EdgeInsets.symmetric(
-                            horizontal: 15, vertical: 4),
-                        child: const Icon(
-                          Icons.delete,
-                          color: Colors.white,
-                          size: 30,
-                        ),
-                      ),
-                      child: ListTile(
-                        title: Text(currentEvent.eventName),
-                        trailing: Text(currentEvent.dateOfEvent),
-                      ),
-                      confirmDismiss: (direction) {
-                        return showDialog(
-                            context: context,
-                            builder: (ctx) => AlertDialog(
-                                  title: const Text('Are you sure?'),
-                                  content: const Text(
-                                      'Do you want to remove this event?'),
-                                  actions: [
-                                    TextButton(
-                                      child: const Text('Yes'),
-                                      onPressed: () {
-                                        Navigator.of(ctx).pop(true);
-                                      },
-                                    ),
-                                    TextButton(
-                                      child: const Text('No'),
-                                      onPressed: () {
-                                        Navigator.of(ctx).pop();
-                                      },
-                                    ),
-                                  ],
-                                ));
-                      },
-                      onDismissed: (direction) {
-                        //FirebaseFirestore.instance.collection('List of Events').doc()
-                        // StreamBuilder<QuerySnapshot>(
-                        //   stream: FirebaseFirestore.instance.collection('List of Events').snapshots(),
-                        //   builder: (context, snapshot) {
-                        //     snapshot.data!.docs[]
-                        //   },
-                        // );
-                        setState(() {
-                          event.deleteEvent(currentEvent.id, _selectedDay);
-                        });
-                        //( '${currentEvent.eventName} deleted');
-                      },
-                    ),
-
-                    // child: ListTile(
-                    //   title: Text(currentEvent.eventName),
-                    //   trailing: Text(currentEvent.dateOfEvent),
-                    // ),
-                  ),
-                  const Divider(),
-                ],
-              ),
+          Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Text(
+              'Events',
+              style:
+                  GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-          )
+          ),
+          Expanded(
+            child: StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection('List of Events')
+                    .orderBy('event added on')
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return const Text('');
+                  }
+                  return ListView.separated(
+                    separatorBuilder: (ctx, index) => snapshot.data!.docs[index]
+                                ['event date'] !=
+                            _selectedDayString
+                        ? const SizedBox()
+                        : const Divider(),
+                    itemCount: snapshot.data!.docs.length,
+                    shrinkWrap: true,
+                    itemBuilder: (ctx, index) {
+                      if (snapshot.data!.docs[index]['event date'] !=
+                          _selectedDayString) {
+                        return const SizedBox();
+                      }
+                      return Dismissible(
+                        key: ValueKey(snapshot.data!.docs[index]['id']),
+                        direction: DismissDirection.endToStart,
+                        background: Container(
+                          alignment: Alignment.centerRight,
+                          color: Theme.of(context).errorColor,
+                          padding: const EdgeInsets.only(right: 20),
+                          margin: const EdgeInsets.symmetric(
+                              horizontal: 15, vertical: 4),
+                          child: const Icon(
+                            Icons.delete,
+                            color: Colors.white,
+                            size: 30,
+                          ),
+                        ),
+                        child: ListTile(
+                          title:
+                              Text(snapshot.data!.docs[index]['event title']),
+                          trailing:
+                              Text(snapshot.data!.docs[index]['event date']),
+                        ),
+                        confirmDismiss: (direction) {
+                          return showDialog(
+                              context: context,
+                              builder: (ctx) => AlertDialog(
+                                    title: const Text('Are you sure?'),
+                                    content: const Text(
+                                        'Do you want to remove this event?'),
+                                    actions: [
+                                      TextButton(
+                                        child: const Text('Yes'),
+                                        onPressed: () {
+                                          Navigator.of(ctx).pop(true);
+                                        },
+                                      ),
+                                      TextButton(
+                                        child: const Text('No'),
+                                        onPressed: () {
+                                          Navigator.of(ctx).pop();
+                                        },
+                                      ),
+                                    ],
+                                  ));
+                        },
+                        onDismissed: (direction) {
+                          FirebaseFirestore.instance
+                              .collection('List of Events')
+                              .doc(snapshot.data!.docs[index]['id'])
+                              .delete();
+                          // setState(() {
+                          //   event.deleteEvent(
+                          //       snapshot.data!.docs[index]['id'],
+                          //       _selectedDay);
+                          // });
+                          //( '${currentEvent.eventName} deleted');
+                        },
+                      );
+                    },
+                  );
+                }),
+
+            // ..._getEventsFromDay(_selectedDay).map(
+            //   (Event currentEvent) => Dismissible(
+            //     key: ValueKey(currentEvent.id),
+            //     direction: DismissDirection.endToStart,
+            //     background: Container(
+            //       alignment: Alignment.centerRight,
+            //       color: Theme.of(context).errorColor,
+            //       padding: const EdgeInsets.only(right: 20),
+            //       margin: const EdgeInsets.symmetric(
+            //           horizontal: 15, vertical: 4),
+            //       child: const Icon(
+            //         Icons.delete,
+            //         color: Colors.white,
+            //         size: 30,
+            //       ),
+            //     ),
+            //     child: ListTile(
+            //       title: Text(currentEvent.eventName),
+            //       trailing: Text(currentEvent.dateOfEvent),
+            //     ),
+            //     confirmDismiss: (direction) {
+            //       return showDialog(
+            //           context: context,
+            //           builder: (ctx) => AlertDialog(
+            //                 title: const Text('Are you sure?'),
+            //                 content: const Text(
+            //                     'Do you want to remove this event?'),
+            //                 actions: [
+            //                   TextButton(
+            //                     child: const Text('Yes'),
+            //                     onPressed: () {
+            //                       Navigator.of(ctx).pop(true);
+            //                     },
+            //                   ),
+            //                   TextButton(
+            //                     child: const Text('No'),
+            //                     onPressed: () {
+            //                       Navigator.of(ctx).pop();
+            //                     },
+            //                   ),
+            //                 ],
+            //               ));
+            //     },
+            //     onDismissed: (direction) {
+            //       //FirebaseFirestore.instance.collection('List of Events').doc()
+            //       // StreamBuilder<QuerySnapshot>(
+            //       //   stream: FirebaseFirestore.instance.collection('List of Events').snapshots(),
+            //       //   builder: (context, snapshot) {
+            //       //     snapshot.data!.docs[]
+            //       //   },
+            //       // );
+            //       setState(() {
+            //         event.deleteEvent(currentEvent.id, _selectedDay);
+            //       });
+            //       //( '${currentEvent.eventName} deleted');
+            //     },
+            //   ),
+            //   // child: ListTile(
+            //   //   title: Text(currentEvent.eventName),
+            //   //   trailing: Text(currentEvent.dateOfEvent),
+            //   // ),
+            // ),
+            //const Divider(),
+          ),
         ],
       ),
       drawer: const AppDrawer(),

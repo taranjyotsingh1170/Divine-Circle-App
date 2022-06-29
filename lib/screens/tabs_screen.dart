@@ -23,24 +23,30 @@ class _TabsScreenState extends State<TabsScreen> {
   void initState() {
     _pages = [
       {
-        'page': const HomeScreen(),
+        'page': HomeScreen(
+          onSeeMoreEventsPressed: (int val) {
+            setState(() {
+              _selectedPageIndex = val;
+            });
+          },
+        ),
         'title': const Text('Home Screen'),
       },
       {
         'page': const EventsScreen(),
-        'title': const Text('Home Screen'),
+        'title': const Text('Events Screen'),
       },
       {
         'page': const EventCalendarScreen(),
-        'title': const Text('Event Calendar'),
+        'title': const Text('Event Calendar Calendar'),
       },
       {
         'page': const SubTeamScreen(),
-        'title': const Text('Sub Team'),
+        'title': const Text('Sub Team Screen'),
       },
       {
         'page': const ProfileScreen(),
-        'title': const Text('Home Screen'),
+        'title': const Text('Profile Screen'),
       },
     ];
     super.initState();
@@ -49,11 +55,8 @@ class _TabsScreenState extends State<TabsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(
-      //   title: _pages[_selectedPage]['title'],
-      // ),
       body: _pages[_selectedPageIndex]['page']!,
-      //drawer: const AppDrawer(),
+
       bottomNavigationBar: NavigationBarTheme(
         data: const NavigationBarThemeData(
             //indicatorColor: Colors.white.withOpacity(0.8),

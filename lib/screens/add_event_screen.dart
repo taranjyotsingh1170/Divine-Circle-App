@@ -27,8 +27,6 @@ class AddEventScreen extends StatefulWidget {
 }
 
 class _AddEventScreenState extends State<AddEventScreen> {
-  //Duration newDuration = const Duration();
-
   int _hour = DateTime.now().hour;
   String _minutes = '';
   String suffixTime = '';
@@ -36,11 +34,23 @@ class _AddEventScreenState extends State<AddEventScreen> {
   bool _searchCoordinator = false;
   TextEditingController _coordinatorController = TextEditingController();
   final TextEditingController _titleController = TextEditingController();
+  //String currentUserName= '';
+
+  final _newEvent = Event(
+    id: DateTime.now().toString(),
+    
+    eventName: '',
+    dateOfEvent: '',
+    timeOfEvent: '',
+    eventDescription: '',
+  );
 
   Widget _fieldText(String text) {
     return Text(text,
         style: GoogleFonts.inter(fontWeight: FontWeight.w400, fontSize: 18));
   }
+
+  final GlobalKey<FormState> _formKey = GlobalKey();
 
   @override
   void dispose() {
@@ -53,18 +63,8 @@ class _AddEventScreenState extends State<AddEventScreen> {
   Widget build(BuildContext context) {
     final membersList = Provider.of<Members>(context);
     final _events = Provider.of<Events>(context);
-    //TextEditingController _dateController = TextEditingController();
-    final _newEvent = Event(
-      id: DateTime.now().toString(),
-      eventName: '',
-      //dateOfEvent: DateTime.now(),
-      dateOfEvent: '',
-      timeOfEvent: '',
-      eventDescription: '',
-    );
-    final GlobalKey<FormState> _formKey = GlobalKey();
 
-    void _saveForm() {
+    void _saveForm(String currentUserName) {
       final isValid = _formKey.currentState!.validate();
       if (!isValid) {
         return;
@@ -75,17 +75,26 @@ class _AddEventScreenState extends State<AddEventScreen> {
       //_events.addEvent(_newEvent);
       _events.addEventinMySelectedEvents(widget.selectedDate, _newEvent);
 
-      FirebaseFirestore.instance.collection('List of Events').add({
-        //'id': FirebaseFirestore.instance.collection('List of Events').doc().id,
-        'event title': _newEvent.eventName,
-        'event date': _newEvent.dateOfEvent,
-        'event time': _newEvent.timeOfEvent,
-        'event description': _newEvent.eventDescription,
-        'event added by': FirebaseAuth.instance.currentUser!.uid,
-      });
+      //print(currentUserName);
+      final docId =
+          FirebaseFirestore.instance.collection('List of Events').doc().id;
 
-      //print(_newEvent.eventDescription);
+      //print(docId);
 
+      try {
+        FirebaseFirestore.instance.collection('List of Events').doc(docId).set({
+          'id': docId,
+          'event title': _newEvent.eventName,
+          'event date': _newEvent.dateOfEvent,
+          'event time': _newEvent.timeOfEvent,
+          'event description': _newEvent.eventDescription,
+          'event added by': currentUserName,
+          'event added on': DateTime.now()
+        });
+      } catch (error) {
+        //print(error);
+      }
+      //print(docId);
       Navigator.of(context).pop();
     }
 
@@ -471,7 +480,26 @@ class _AddEventScreenState extends State<AddEventScreen> {
                   ],
                 ),
                 ElevatedButton(
-                  onPressed: _saveForm,
+                  onPressed: () {
+                    try {
+                      FirebaseFirestore.instance
+                          .collection('users')
+                          .doc(FirebaseAuth.instance.currentUser!.uid)
+                          .get()
+                          .then((value) {
+                        var fields = value.data();
+                        
+                        var  currentName = fields!['name'];
+                        // print(currentName);
+                        _saveForm(currentName);
+                      });
+                    } catch (error) {
+                      //print(error);
+                    }
+
+                    //print(currentUserName);
+                    
+                  },
                   child: Text('Save',
                       style: GoogleFonts.inter(
                           fontSize: 20,

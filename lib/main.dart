@@ -1,3 +1,4 @@
+import 'package:divine_circle/screens/create_chat_group.dart';
 import 'package:divine_circle/screens/to_do_list_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -25,7 +26,6 @@ import '/screens/members_screen.dart';
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   Firebase.initializeApp();
-
   runApp(const MyApp());
 }
 
@@ -61,6 +61,7 @@ class MyApp extends StatelessWidget {
               color: Color(0xff134493),
             ),
             iconTheme: const IconThemeData(color: Colors.white)),
+        //home: const HomeScreen(),
         home: const WelcomeScreen(),
         routes: {
           HomeScreen.routeName: (ctx) => const HomeScreen(),
@@ -74,7 +75,8 @@ class MyApp extends StatelessWidget {
           ProfileScreen.routeName: (ctx) => const ProfileScreen(),
           MembersScreen.routeName: (ctx) => const MembersScreen(),
           //EventDetailScreen.routeName: (ctx) => const EventDetailScreen(),
-          ToDoListScreen.routeName: (ctx) => const ToDoListScreen(), 
+          ToDoListScreen.routeName: (ctx) => const ToDoListScreen(),
+          CreateGroupChat.routeName: (ctx) => const CreateGroupChat(),
         },
       ),
     );

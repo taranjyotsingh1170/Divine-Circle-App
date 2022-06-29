@@ -96,11 +96,21 @@ class Members with ChangeNotifier {
   }
 
   void currentUser(String currentUserId) {
-  //Stream<DocumentSnapshot>  user =  FirebaseFirestore.instance.collection('users').doc(currentUserId).snapshots();
-
+    //Stream<DocumentSnapshot>  user =  FirebaseFirestore.instance.collection('users').doc(currentUserId).snapshots();
 
     if (_listOfMembers.any((member) => member.id == currentUserId)) {
       // return Member(id: currentUserId, email: , name: name, phoneNumber: phoneNumber)
     }
+  }
+
+  final List<String> _namesOfMembers = [];
+
+  List<String> get namesOfMembers {
+    return [..._namesOfMembers];
+  }
+
+  void addMemberNames(String name) {
+    _namesOfMembers.add(name);
+    notifyListeners();
   }
 }

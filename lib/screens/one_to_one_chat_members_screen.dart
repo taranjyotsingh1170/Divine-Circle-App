@@ -1,9 +1,10 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:divine_circle/screens/one_to_one_chat_screen.dart';
-//import 'package:firebase_core/firebase_core.dart';
+import 'package:divine_circle/screens/create_chat_group.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+
+import '/screens/one_to_one_chat_screen.dart';
 
 class OneToOneChatMembersScreen extends StatelessWidget {
   const OneToOneChatMembersScreen({Key? key}) : super(key: key);
@@ -25,28 +26,46 @@ class OneToOneChatMembersScreen extends StatelessWidget {
               child: Text('Loading...'),
             );
           } else {
-            return ListView.builder(
-                itemCount: snapshot.data!.docs.length ,
-                itemBuilder: (ctx, index) {
-                  if (snapshot.data!.docs[index]['id'] ==
-                      FirebaseAuth.instance.currentUser!.uid) {
-                    return const SizedBox(height: 0, width: 0);
-                    //index = index + 1;
-                  }
-                  return ListTile(
-                    title: Text(snapshot.data!.docs[index]['name']),
-                    onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => OneToOneChatScreen(
-                          name: snapshot.data!.docs[index]['name'],
-                          //receiverId: snapshot.data!.docs[index]['id'],
-                          receiverName: snapshot.data!.docs[index]['name'],
-                        ),
+            String senderName = '';
+            FirebaseFirestore.instance
+                .collection('users')
+                .doc(FirebaseAuth.instance.currentUser!.uid)
+                .get()
+                .then((value) {
+              var fields = value.data();
+              senderName = fields!['name'];
+            });
+            return ListView.separated(
+              separatorBuilder: (ctx, index) => const Divider(),
+              itemCount: snapshot.data!.docs.length - 1,
+              itemBuilder: (ctx, index) {
+                if (snapshot.data!.docs[index]['id'] ==
+                    FirebaseAuth.instance.currentUser!.uid) {
+                  index = index + 1;
+                }
+                return ListTile(
+                  title: Text(snapshot.data!.docs[index]['name']),
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => OneToOneChatScreen(
+                        name: snapshot.data!.docs[index]['name'],
+                        //receiverId: snapshot.data!.docs[index]['id'],
+                        receiverName: snapshot.data!.docs[index]['name'],
+                        senderName: senderName,
                       ),
                     ),
-                  );
-                });
+                  ),
+                );
+              },
+            );
           }
+        },
+      ),
+      floatingActionButton: FloatingActionButton(
+        child: const Icon(Icons.add),
+        //  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(35)),
+        onPressed: () {
+          Navigator.of(context).pushNamed(CreateGroupChat.routeName);
         },
       ),
     );
