@@ -1,8 +1,6 @@
-//import 'package:divine_circle/screens/tabs_screen.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:divine_circle/widgets/event_item.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '/screens/event_detail_screen.dart';
 import 'package:flutter/material.dart';
 //import 'package:intl/intl.dart';
 //import 'package:provider/provider.dart';
@@ -10,6 +8,7 @@ import 'package:flutter/material.dart';
 //import '../screens/add_event_screen.dart';
 
 import '../widgets/app_drawer.dart';
+import 'one_to_one_chat_members_screen.dart';
 
 //import '../providers/events.dart';
 
@@ -25,72 +24,27 @@ class EventsScreen extends StatefulWidget {
 class _EventsScreenState extends State<EventsScreen> {
   bool wannaSearch = false;
   final _searchController = TextEditingController();
-  List _allEvents = [];
-  List _resultsList = [];
-  Future? resultsLoaded;
-
-  getEventsInfo() async {
-    var events = await FirebaseFirestore.instance
-        .collection('List of Events')
-        .orderBy('event added on')
-        .get();
-
-    setState(() {
-      _allEvents = events.docs;
-    });
-
-    searchResultsList();
-
-    return 'Complete';
-  }
+  FocusNode searchFocus = FocusNode();
 
   onSearchChanged() {
-    searchResultsList();
-    //print(_searchController.text);
-  }
-
-  searchResultsList() {
-    var showResults = [];
-
-    if (_searchController.text != '') {
-      // we have search parameter
-      for (var event in _allEvents) {
-        String eventName = event['event title'];
-        String name = eventName.toLowerCase();
-
-        if (name.contains(_searchController.text.toLowerCase())) {
-          showResults.add(event);
-        }
-      }
-    } else {
-      showResults = List.from(_allEvents);
-    }
-    setState(() {
-      _resultsList = showResults;
-    });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _searchController.addListener(onSearchChanged);
+    setState(() {});
   }
 
   @override
   void dispose() {
-    _searchController.removeListener(onSearchChanged);
     _searchController.dispose();
+    searchFocus.dispose();
     super.dispose();
   }
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    resultsLoaded = getEventsInfo();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    if (wannaSearch) {
+      searchFocus.requestFocus();
+    } else {
+      searchFocus.unfocus();
+    }
+
     return WillPopScope(
       onWillPop: () async {
         if (wannaSearch == true && _searchController.text.isEmpty) {
@@ -101,190 +55,171 @@ class _EventsScreenState extends State<EventsScreen> {
         }
         return true;
       },
-      child: Scaffold(
-        appBar: AppBar(
-          title: !wannaSearch
-              ? Text('EventsScreen',
-                  style: GoogleFonts.inter(
-                      fontWeight: FontWeight.w500, color: Colors.white))
-              : TextField(
-                  controller: _searchController,
-                  decoration: const InputDecoration(
-                    hintText: 'Search',
-                    hintStyle: TextStyle(color: Colors.white60),
-                    border: InputBorder.none,
+      child: GestureDetector(
+        onTap: () {
+          FocusManager.instance.primaryFocus?.unfocus();
+          setState(() {
+            wannaSearch = false;
+          });
+        },
+        child: Scaffold(
+          appBar: AppBar(
+            leadingWidth: 43,
+            title: Container(
+              height: 40,
+              margin: const EdgeInsets.only(top: 5),
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: const Color(0xffC3DCEB)),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Expanded(
+                    child: TextField(
+                      focusNode: searchFocus,
+                      controller: _searchController,
+                      decoration: const InputDecoration(
+                        hintText: 'Search events',
+                        hintStyle:
+                            TextStyle(color: Color(0xff6B737C), fontSize: 14),
+                        border: InputBorder.none,
+                      ),
+                      onChanged: (value) {
+                        onSearchChanged();
+                      },
+                      onTap: () {
+                        setState(() {
+                          wannaSearch = true;
+                        });
+                      },
+                    ),
                   ),
-                  autofocus: true,
-                  style: const TextStyle(color: Colors.white),
-                ),
-          iconTheme: Theme.of(context).iconTheme,
-          elevation: 0,
-          actions: [
-            IconButton(
-              icon: !wannaSearch
-                  ? const Icon(Icons.search)
-                  : const Icon(Icons.close),
-              onPressed: () {
-                setState(() {
-                  wannaSearch = !wannaSearch;
-                });
+                  IconButton(
+                    padding: const EdgeInsets.only(top: 8, bottom: 8, left: 15),
+                    icon: !wannaSearch
+                        ? const Icon(Icons.search, color: Color(0xff54545A))
+                        : const Icon(Icons.close, color: Color(0xff54545A)),
+                    onPressed: () {
+                      setState(() {
+                        wannaSearch = !wannaSearch;
+                      });
 
-                if (!wannaSearch) {
-                  _searchController.clear();
-                }
-              },
-            )
-          ],
-        ),
-        body: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-          //padding: const EdgeInsets.all(8.0),
-          child: Column(
+                      if (!wannaSearch) {
+                        _searchController.clear();
+                      }
+                    },
+                  )
+                ],
+              ),
+            ),
+            actions: [
+              Padding(
+                padding: const EdgeInsets.only(right: 15),
+                child: GestureDetector(
+                  child: Image.asset('assets/images/chat_icon.png',
+                      height: 22, width: 22),
+                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => const OneToOneChatMembersScreen())),
+                ),
+              )
+            ],
+          ),
+          body: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                'Events',
-                style: GoogleFonts.inter(fontSize: 30),
+              Container(
+                height: 15,
+                decoration: const BoxDecoration(
+                  color: Color(0xffB9E0F7),
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(70),
+                    bottomRight: Radius.circular(70),
+                  ),
+                ),
               ),
               Expanded(
-                child: 
-                // ListView.separated(
-                //     separatorBuilder: (ctx, index) => const Divider(),
-                //     itemCount: _resultsList.length,
-                //     //itemCount: _events.eventList.length,
-                //     itemBuilder: (ctx, index) {
-                //       return InkWell(
-                //         onTap: () {
-                //           Navigator.of(context).push(
-                //             MaterialPageRoute(
-                //               builder: (_) => EventDetailScreen(
-                //                 currrentEventId: _resultsList[index]['id'],
-                //                 // currentEvent: snapshot.data!.docs,
-                //                 // currentEvent: _events.eventList[index],
-                //               ),
-                //             ),
-                //           );
-                //           print(_resultsList[index]['event title']);
-
-                //           _searchController.clear();
-                //           wannaSearch = false;
-                //         },
-                //         child: Container(
-                //           margin: const EdgeInsets.symmetric(vertical: 10),
-                //           padding: const EdgeInsets.only(bottom: 15),
-                //           decoration: BoxDecoration(
-                //               border: Border.all(),
-                //               borderRadius: BorderRadius.circular(25)),
-                //           child: Column(
-                //             children: [
-                //               ListTile(
-                //                 title: Text(_resultsList[index]['event title']),
-                //                 trailing:
-                //                     Text(_resultsList[index]['event date']),
-                //                 //title: Text(_events.eventList[index].eventName),
-                //                 //subtitle: Text(_events.eventList[index].id),
-
-                //                 // trailing: Text(
-                //                 //     _events.eventList[index].dateOfEvent),
-                //               ),
-                //               Container(
-                //                 alignment: Alignment.centerLeft,
-                //                 padding:
-                //                     const EdgeInsets.symmetric(horizontal: 15),
-                //                 child: Text(
-                //                   _resultsList[index]['event description'],
-                //                   //_events.eventList[index].eventDescription,
-                //                   softWrap: true,
-                //                   maxLines: 3,
-                //                   overflow: TextOverflow.ellipsis,
-                //                   style: const TextStyle(fontSize: 18),
-                //                 ),
-                //               ),
-                //             ],
-                //           ),
-                //         ),
-                //       );
-                //     }),
-
-                StreamBuilder<QuerySnapshot>(
-                    stream: FirebaseFirestore.instance
-                        .collection('List of Events')
-                        .orderBy('event added on')
-                        .snapshots(),
-                    builder: (context, snapshot) {
-                      if (!snapshot.hasData) {
-                        return const Center(
-                          child: Text(''),
-                        );
-                      }
-                      if (snapshot.data!.docs.isEmpty) {
-                        return const Center(
-                          child: Text('No event added yet!'),
-                        );
-                      }
-                      return ListView.separated(
-                          separatorBuilder: (ctx, index) => const Divider(),
-                          itemCount: snapshot.data!.docs.length,
-                          //itemCount: _events.eventList.length,
-                          itemBuilder: (ctx, index) {
-                            return InkWell(
-                              onTap: () {
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (_) => EventDetailScreen(
-                                      currrentEventId:
-                                          snapshot.data!.docs[index]['id'],
-                                      // currentEvent: snapshot.data!.docs,
-                                      // currentEvent: _events.eventList[index],
-                                    ),
-                                  ),
-                                );
-                              },
-                              child: Container(
-                                margin:
-                                    const EdgeInsets.symmetric(vertical: 10),
-                                padding: const EdgeInsets.only(bottom: 15),
-                                decoration: BoxDecoration(
-                                    border: Border.all(),
-                                    borderRadius: BorderRadius.circular(25)),
-                                child: Column(
-                                  children: [
-                                    ListTile(
-                                      title: Text(snapshot.data!.docs[index]
-                                          ['event title']),
-                                      trailing: Text(snapshot.data!.docs[index]
-                                          ['event date']),
-                                      //title: Text(_events.eventList[index].eventName),
-                                      //subtitle: Text(_events.eventList[index].id),
-                                      // trailing: Text(
-                                      //     _events.eventList[index].dateOfEvent),
-                                    ),
-                                    Container(
-                                      alignment: Alignment.centerLeft,
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 15),
-                                      child: Text(
-                                        snapshot.data!.docs[index]
-                                            ['event description'],
-                                        //_events.eventList[index].eventDescription,
-                                        softWrap: true,
-                                        maxLines: 3,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: const TextStyle(fontSize: 18),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          });
-                    }),
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Events',
+                        style: GoogleFonts.inter(
+                            fontSize: 28,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: -0.8,
+                            color: const Color(0xff333333)),
+                      ),
+                      Expanded(
+                        child: EventItem(searchController: _searchController),
+                        // ListView.separated(
+                        //     separatorBuilder: (ctx, index) => const Divider(),
+                        //     itemCount: _resultsList.length,
+                        //     //itemCount: _events.eventList.length,
+                        //     itemBuilder: (ctx, index) {
+                        //       return InkWell(
+                        //         onTap: () {
+                        //           Navigator.of(context).push(
+                        //             MaterialPageRoute(
+                        //               builder: (_) => EventDetailScreen(
+                        //                 currrentEventId: _resultsList[index]['id'],
+                        //                 // currentEvent: snapshot.data!.docs,
+                        //                 // currentEvent: _events.eventList[index],
+                        //               ),
+                        //             ),
+                        //           );
+                        //           print(_resultsList[index]['event title']);
+                        //           _searchController.clear();
+                        //           wannaSearch = false;
+                        //         },
+                        //         child: Container(
+                        //           margin: const EdgeInsets.symmetric(vertical: 10),
+                        //           padding: const EdgeInsets.only(bottom: 15),
+                        //           decoration: BoxDecoration(
+                        //               border: Border.all(),
+                        //               borderRadius: BorderRadius.circular(25)),
+                        //           child: Column(
+                        //             children: [
+                        //               ListTile(
+                        //                 title: Text(_resultsList[index]['event title']),
+                        //                 trailing:
+                        //                     Text(_resultsList[index]['event date']),
+                        //                 //title: Text(_events.eventList[index].eventName),
+                        //                 //subtitle: Text(_events.eventList[index].id),
+                        //                 // trailing: Text(
+                        //                 //     _events.eventList[index].dateOfEvent),
+                        //               ),
+                        //               Container(
+                        //                 alignment: Alignment.centerLeft,
+                        //                 padding:
+                        //                     const EdgeInsets.symmetric(horizontal: 15),
+                        //                 child: Text(
+                        //                   _resultsList[index]['event description'],
+                        //                   //_events.eventList[index].eventDescription,
+                        //                   softWrap: true,
+                        //                   maxLines: 3,
+                        //                   overflow: TextOverflow.ellipsis,
+                        //                   style: const TextStyle(fontSize: 18),
+                        //                 ),
+                        //               ),
+                        //             ],
+                        //           ),
+                        //         ),
+                        //       );
+                        //     }),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ],
           ),
+          drawer: const AppDrawer(),
         ),
-        drawer: const AppDrawer(),
-        // bottomNavigationBar: const TabsScreen(),
       ),
     );
   }

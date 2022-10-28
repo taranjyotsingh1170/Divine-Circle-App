@@ -65,7 +65,7 @@ class _ToDoListScreenState extends State<ToDoListScreen> {
         appBar: AppBar(
           title: Text('To Do List',
               style: GoogleFonts.inter(
-                  fontWeight: FontWeight.w500, color: Colors.white)),
+                  fontWeight: FontWeight.w500)),
           iconTheme: Theme.of(context).iconTheme,
           elevation: 0,
         ),

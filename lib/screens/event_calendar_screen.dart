@@ -54,10 +54,10 @@ class _EventCalendarScreenState extends State<EventCalendarScreen> {
 
     return Scaffold(
       appBar: AppBar(
+        leadingWidth: 43,
         title: Text(
           'Event Calendar',
-          style: GoogleFonts.inter(
-              fontWeight: FontWeight.w500, color: Colors.white),
+          style: GoogleFonts.inter(fontWeight: FontWeight.w500),
         ),
         iconTheme: Theme.of(context).iconTheme,
         elevation: 0,
@@ -65,6 +65,16 @@ class _EventCalendarScreenState extends State<EventCalendarScreen> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Container(
+            height: 15,
+            decoration: const BoxDecoration(
+              color: Color(0xffB9E0F7),
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(70),
+                bottomRight: Radius.circular(70),
+              ),
+            ),
+          ),
           TableCalendar(
             focusedDay: _focusedDay,
             firstDay: DateTime(1947),
@@ -133,25 +143,36 @@ class _EventCalendarScreenState extends State<EventCalendarScreen> {
             child: StreamBuilder<QuerySnapshot>(
                 stream: FirebaseFirestore.instance
                     .collection('List of Events')
-                    .orderBy('event added on')
+                    .orderBy('event date', descending: true)
                     .snapshots(),
                 builder: (context, snapshot) {
                   if (!snapshot.hasData) {
                     return const Text('');
                   }
-                  return ListView.separated(
-                    separatorBuilder: (ctx, index) => snapshot.data!.docs[index]
-                                ['event date'] !=
-                            _selectedDayString
-                        ? const SizedBox()
-                        : const Divider(),
+                  if (snapshot.data!.docs.isEmpty) {
+                    return const Center(
+                      child: Text('No event added yet!'),
+                    );
+                  }
+
+                  
+                  return ListView.builder(
+                    // separatorBuilder: (ctx, index) => snapshot.data!.docs[index]
+                    //             ['event date'].toDate() !=
+                    //         _selectedDayString
+                    //     ? const SizedBox()
+                    //     : const Divider(),
                     itemCount: snapshot.data!.docs.length,
                     shrinkWrap: true,
                     itemBuilder: (ctx, index) {
-                      if (snapshot.data!.docs[index]['event date'] !=
-                          _selectedDayString) {
-                        return const SizedBox();
-                      }
+                      final eventDate =
+                          snapshot.data!.docs[index]['event date'];
+                      final date = eventDate.toDate();
+
+                      // if (date != _selectedDayString) {
+                      //   return const SizedBox();
+                      // }
+
                       return Dismissible(
                         key: ValueKey(snapshot.data!.docs[index]['id']),
                         direction: DismissDirection.endToStart,
@@ -171,7 +192,7 @@ class _EventCalendarScreenState extends State<EventCalendarScreen> {
                           title:
                               Text(snapshot.data!.docs[index]['event title']),
                           trailing:
-                              Text(snapshot.data!.docs[index]['event date']),
+                              Text(DateFormat('dd MMM, yyyy').format(date)),
                         ),
                         confirmDismiss: (direction) {
                           return showDialog(

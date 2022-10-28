@@ -29,6 +29,16 @@ class _TabsScreenState extends State<TabsScreen> {
               _selectedPageIndex = val;
             });
           },
+          onProfileButtonPressed: (int val) {
+            setState(() {
+              _selectedPageIndex = val;
+            });
+          },
+          onEventsButtonPressed: (int val) {
+            setState(() {
+              _selectedPageIndex = val;
+            });
+          },
         ),
         'title': const Text('Home Screen'),
       },

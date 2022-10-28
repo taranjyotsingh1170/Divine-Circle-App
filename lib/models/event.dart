@@ -1,7 +1,7 @@
 class Event {
   String id;
   String eventName;
-  String dateOfEvent;
+  DateTime dateOfEvent;
   String timeOfEvent;
   String eventDescription;
 

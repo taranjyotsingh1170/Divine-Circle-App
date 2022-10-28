@@ -27,7 +27,7 @@ class _MembersScreenState extends State<MembersScreen> {
   bool _showAllMembers = true;
   bool _showContentTeamMembers = false;
   bool _showDesignTeamMembers = false;
-  List<Member> _members = [];
+  List<Member> members = [];
 
   @override
   Widget build(BuildContext context) {
@@ -35,15 +35,15 @@ class _MembersScreenState extends State<MembersScreen> {
 
     if (_showContentTeamMembers) {
       setState(() {
-        _members = _membersData.contentTeamMembers;
+        members = _membersData.contentTeamMembers;
       });
     } else if (_showDesignTeamMembers) {
       setState(() {
-        _members = _membersData.designTeamMembers;
+        members = _membersData.designTeamMembers;
       });
     } else if (_showAllMembers) {
       setState(() {
-        _members = _membersData.memberList;
+        members = _membersData.memberList;
       });
     }
 
@@ -51,7 +51,7 @@ class _MembersScreenState extends State<MembersScreen> {
       appBar: AppBar(
         title: Text('Members',
             style: GoogleFonts.inter(
-                fontWeight: FontWeight.w500, color: Colors.white)),
+                fontWeight: FontWeight.w500, color: Colors.black)),
         iconTheme: Theme.of(context).iconTheme,
         actions: [
           PopupMenuButton(

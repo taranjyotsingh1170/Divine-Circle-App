@@ -57,7 +57,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       appBar: AppBar(
         title: Text('Divine Circle',
             style: GoogleFonts.inter(
-                fontWeight: FontWeight.w500, color: Colors.white)),
+                fontWeight: FontWeight.w500, color: Colors.black)),
         elevation: 0,
         centerTitle: true,
         //backgroundColor: Theme.of(context).primaryColor,
@@ -82,9 +82,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                         child: Text(
                           _imageText[index],
                           style: GoogleFonts.inter(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 22,
-                          ),
+                              fontWeight: FontWeight.w600, fontSize: 22),
                           textAlign: TextAlign.center,
                         ),
                       ),
@@ -114,10 +112,12 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 child: Text(
                   'Get started',
                   style: GoogleFonts.inter(
-                      fontSize: 20, fontWeight: FontWeight.w500, color: Colors.white),
+                      fontSize: 20,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black),
                 ),
                 style: ElevatedButton.styleFrom(
-                  primary: Theme.of(context).primaryColor,
+                  backgroundColor: Theme.of(context).primaryColor,
                   padding:
                       const EdgeInsets.symmetric(horizontal: 100, vertical: 10),
                   shape: RoundedRectangleBorder(

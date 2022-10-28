@@ -2,24 +2,23 @@ import 'package:flutter/material.dart';
 
 class SearchWidget extends StatefulWidget {
   final TextEditingController searchController;
+  final Function onSearchChanged;
 
-  const SearchWidget({
-    Key? key,
-    required this.searchController
-  }) : super(key: key);
+  const SearchWidget(
+      {Key? key, required this.searchController, required this.onSearchChanged})
+      : super(key: key);
 
   @override
   _SearchWidgetState createState() => _SearchWidgetState();
 }
 
 class _SearchWidgetState extends State<SearchWidget> {
-  
-
   @override
   Widget build(BuildContext context) {
     const styleActive = TextStyle(color: Colors.black);
     const styleHint = TextStyle(color: Colors.black54);
-    final style = widget.searchController.text.isEmpty ? styleHint : styleActive;
+    final style =
+        widget.searchController.text.isEmpty ? styleHint : styleActive;
     return Container(
       height: 42,
       margin: const EdgeInsets.fromLTRB(16, 16, 16, 16),
@@ -38,8 +37,8 @@ class _SearchWidgetState extends State<SearchWidget> {
                   child: Icon(Icons.close, color: style.color),
                   onTap: () {
                     widget.searchController.clear();
-                    //widget.onChanged('');
                     FocusScope.of(context).requestFocus(FocusNode());
+                    widget.onSearchChanged();
                   },
                 )
               : null,
@@ -47,8 +46,10 @@ class _SearchWidgetState extends State<SearchWidget> {
           hintStyle: style,
           border: InputBorder.none,
         ),
-        style: style,
-        //onChanged: widget.onChanged,
+        textCapitalization: TextCapitalization.sentences,
+        onChanged: (value) {
+          widget.onSearchChanged();
+        },
       ),
     );
   }

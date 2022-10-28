@@ -44,7 +44,7 @@ class _OneToOneChatScreenState extends State<OneToOneChatScreen> {
       appBar: AppBar(
         title: Text(widget.name,
             style: GoogleFonts.inter(
-                fontWeight: FontWeight.w500, color: Colors.white)),
+                fontWeight: FontWeight.w500, color: Colors.black)),
         iconTheme: Theme.of(context).iconTheme,
       ),
       body: Column(

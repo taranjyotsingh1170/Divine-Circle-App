@@ -10,6 +10,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/members.dart';
+import '../providers/login.dart';
 
 import '../screens/tabs_screen.dart';
 
@@ -44,7 +45,9 @@ class _LoginScreenState extends State<LoginScreen>
       isInContentTeam: false,
       isInDesignTeam: false,
       isInPrTeam: false,
-      isInKirtanTeam: false);
+      isInKirtanTeam: false,
+      isSelectedForDuty: false,
+      isSelectedForGroupChat: false);
 
   //final _memberType = MemberType.normalMember;
 
@@ -102,17 +105,21 @@ class _LoginScreenState extends State<LoginScreen>
 
   Widget _fieldHead(String head) {
     return Padding(
-      padding: const EdgeInsets.only(left: 15, top: 20),
+      padding: const EdgeInsets.only(top: 20),
       child: Text(
         head,
-        style: const TextStyle(fontWeight: FontWeight.bold),
+        style: GoogleFonts.inter(
+            // fontWeight: FontWeight.w500,
+            color: const Color(0xff54545A),
+            fontSize: 15,
+            letterSpacing: -0.5),
       ),
     );
   }
 
   void saveForm(context) async {
     final isValid = _formKey.currentState!.validate();
-
+    final _login = Provider.of<Login>(context, listen: false);
     if (!isValid) {
       return;
     }
@@ -127,6 +134,8 @@ class _LoginScreenState extends State<LoginScreen>
         //print(error);
       }
 
+      final User? userCredentials = FirebaseAuth.instance.currentUser;
+      _login.storeTokenAndData(userCredentials);
       Navigator.of(context).pushNamed(TabsScreen.routeName);
     } else if (_authmode == AuthMode.signup) {
       UserCredential userCredential = await FirebaseAuth.instance
@@ -134,6 +143,24 @@ class _LoginScreenState extends State<LoginScreen>
               email: _member.email, password: passController.text);
 
       final member = Provider.of<Members>(context, listen: false);
+
+      setSearchParameter(String userName) {
+        List<String> caseSearchList = [];
+        String temp = '';
+        String lowerTemp = '';
+
+        for (int i = 0; i < userName.length; i++) {
+          temp = temp + userName[i];
+          caseSearchList.add(temp);
+          if (userName[i] == userName[i].toUpperCase()) {
+            // print(eventTitle[i].toUpperCase());
+            lowerTemp = lowerTemp + userName[i].toLowerCase();
+            // print(eventTitle[i].toLowerCase());
+            caseSearchList.add(lowerTemp);
+          }
+        }
+        return caseSearchList;
+      }
 
       try {
         final userId = userCredential.user!.uid;
@@ -149,6 +176,9 @@ class _LoginScreenState extends State<LoginScreen>
           'isInContentTeam': _member.isInContentTeam,
           'isInPrTeam': _member.isInPrTeam,
           'isInKirtanTeam': _member.isInKirtanTeam,
+          'isSelectedForDuty': _member.isSelectedForDuty,
+          'isSelectedForGroupChat': _member.isSelectedForGroupChat,
+          'case search': setSearchParameter(_member.name),
           //'member type': _memberType,
         });
 
@@ -163,272 +193,321 @@ class _LoginScreenState extends State<LoginScreen>
 
   @override
   Widget build(BuildContext context) {
+    final deviceSize = MediaQuery.of(context).size;
+
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_authmode == AuthMode.login ? 'Login' : 'Signup',
-            style: GoogleFonts.inter(
-                fontWeight: FontWeight.w500, color: Colors.white)),
-        iconTheme: Theme.of(context).iconTheme,
-        //backgroundColor: Theme.of(context).primaryColor,
-        elevation: 0,
-      ),
+      // appBar: AppBar(
+      //   title: Text(_authmode == AuthMode.login ? 'Login' : 'Signup',
+      //       style: GoogleFonts.inter(
+      //           fontWeight: FontWeight.w500, color: Colors.black)),
+      //   iconTheme: Theme.of(context).iconTheme,
+      //   //backgroundColor: Theme.of(context).primaryColor,
+      //   elevation: 0,
+      // ),
       body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(30),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.only(top: 90),
-                    child: Text(
-                      'Create Account',
-                      style:
-                          TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 30),
+          child: Column(
+            children: [
+              SizedBox(height: deviceSize.height * 0.08),
+              CircleAvatar(
+                backgroundColor: Colors.white,
+                radius: 50,
+                child: Image.asset('assets/images/11.png'),
+              ),
+              Container(
+                padding:
+                    EdgeInsets.symmetric(vertical: deviceSize.height * 0.04),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Welcome to Divine Circle!',
+                      style: GoogleFonts.inter(
+                          fontWeight: FontWeight.w600,
+                          color: const Color(0xff333333),
+                          fontSize: 25,
+                          letterSpacing: -0.8),
                     ),
-                  ),
-                  SizedBox(
-                    child: Form(
-                      key: _formKey,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _fieldHead('Enter email'),
-                          SizedBox(
-                            // padding: const EdgeInsets.symmetric(horizontal: 15),
-                            // margin: const EdgeInsets.only(top: 10),
-                            // decoration: BoxDecoration(
-                            //   border: Border.all(color: Colors.grey),
-                            //   borderRadius: BorderRadius.circular(30),
-                            // ),
-                            child: TextFormField(
+                    const SizedBox(height: 10),
+                    Text(
+                      'Please enter your details to sign in',
+                      style: GoogleFonts.inter(
+                          // fontWeight: FontWeight.w500,
+                          color: const Color(0xff54545A),
+                          fontSize: 15,
+                          letterSpacing: -0.5),
+                    ),
+                    Container(
+                      margin: EdgeInsets.only(top: deviceSize.height * 0.08),
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _fieldHead('Enter email'),
+                            Container(
+                              margin: EdgeInsets.only(
+                                  top: deviceSize.height * 0.012),
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(color: Colors.grey)),
+                              child: TextFormField(
+                                  decoration: const InputDecoration(
+                                      contentPadding:
+                                          EdgeInsets.only(left: 15, right: 15),
+                                      //labelText: 'Email',
+                                      border: InputBorder.none,
+                                      suffixIcon: Icon(
+                                        Icons.email_rounded,
+                                        color: Colors.black,
+                                      )),
+                                  textInputAction: TextInputAction.next,
+                                  textCapitalization:
+                                      TextCapitalization.sentences,
+                                  keyboardType: TextInputType.emailAddress,
+                                  validator: (email) {
+                                    if (email!.isEmpty) {
+                                      return '* required';
+                                    }
+                                    if (!EmailValidator.validate(email)) {
+                                      return 'Enter a valid email address';
+                                    }
+
+                                    // else if (!value.contains('@')) {
+                                    //   return 'Invalid email!';
+                                    // }
+                                    return null;
+                                  },
+                                  onSaved: (email) {
+                                    _member.email = email!;
+                                  }),
+                            ),
+                            if (_authmode == AuthMode.signup)
+                              _fieldHead('Enter name'),
+                            if (_authmode == AuthMode.signup)
+                              TextFormField(
+                                //obscureText: !_ispassVisible,
                                 decoration: const InputDecoration(
-                                    //contentPadding: EdgeInsets.all(20),
-                                    //labelText: 'Email',
-                                    //border: InputBorder.none,
-                                    ),
+                                  contentPadding: EdgeInsets.all(20),
+                                  //labelText: 'Password',
+                                  //border: InputBorder.none,
+                                ),
+                                keyboardType: TextInputType.text,
                                 textCapitalization:
                                     TextCapitalization.sentences,
-                                keyboardType: TextInputType.emailAddress,
-                                validator: (email) {
-                                  if (email!.isEmpty) {
+                                validator: (name) {
+                                  if (name!.isEmpty) {
                                     return '* required';
                                   }
-                                  if (!EmailValidator.validate(email)) {
-                                    return 'Enter a valid email address';
-                                  }
-
-                                  // else if (!value.contains('@')) {
-                                  //   return 'Invalid email!';
-                                  // }
                                   return null;
                                 },
-                                onSaved: (email) {
-                                  _member.email = email!;
-                                }),
-                          ),
-                          if (_authmode == AuthMode.signup)
-                            _fieldHead('Enter name'),
-                          if (_authmode == AuthMode.signup)
-                            TextFormField(
-                              //obscureText: !_ispassVisible,
-                              decoration: const InputDecoration(
-                                contentPadding: EdgeInsets.all(20),
-                                //labelText: 'Password',
-                                //border: InputBorder.none,
+                                onSaved: (name) {
+                                  _member.name = name!;
+                                },
                               ),
-                              keyboardType: TextInputType.text,
-                              textCapitalization: TextCapitalization.sentences,
-                              validator: (name) {
-                                if (name!.isEmpty) {
-                                  return '* required';
-                                }
-                                return null;
-                              },
-                              onSaved: (name) {
-                                _member.name = name!;
-                              },
-                            ),
-                          if (_authmode == AuthMode.signup)
-                            _fieldHead('Enter Phone number'),
-                          if (_authmode == AuthMode.signup)
-                            TextFormField(
-                              //obscureText: !_ispassVisible,
-                              decoration: const InputDecoration(
-                                contentPadding: EdgeInsets.all(20),
-                                //labelText: 'Password',
-                                //border: InputBorder.none,
-                              ),
-                              keyboardType: TextInputType.phone,
-                              validator: (number) {
-                                if (number!.isEmpty) {
-                                  return '* required';
-                                }
-                                return null;
-                              },
-                              onSaved: (number) {
-                                _member.phoneNumber = int.parse(number!);
-                              },
-                            ),
-                          _fieldHead('Enter password'),
-                          SizedBox(
-                            // padding: const EdgeInsets.symmetric(horizontal: 15),
-                            // margin: const EdgeInsets.only(top: 10),
-                            // decoration: BoxDecoration(
-                            //   border: Border.all(color: Colors.grey),
-                            //   borderRadius: BorderRadius.circular(35),
-                            // ),
-                            child: TextFormField(
-                              controller: passController,
-                              obscureText: !_ispassVisible,
-                              decoration: InputDecoration(
-                                contentPadding: const EdgeInsets.all(20),
-                                //labelText: 'Password',
-                                //border: InputBorder.none,
-                                suffixIcon: IconButton(
-                                  icon: _ispassVisible
-                                      ? const Icon(Icons.visibility_off_rounded)
-                                      : const Icon(Icons.visibility_rounded),
-                                  onPressed: () {
-                                    setState(() {
-                                      _ispassVisible = !_ispassVisible;
-                                    });
-                                  },
+                            if (_authmode == AuthMode.signup)
+                              _fieldHead('Enter Phone number'),
+                            if (_authmode == AuthMode.signup)
+                              TextFormField(
+                                //obscureText: !_ispassVisible,
+                                decoration: const InputDecoration(
+                                  contentPadding: EdgeInsets.all(20),
+                                  //labelText: 'Password',
+                                  //border: InputBorder.none,
                                 ),
+                                keyboardType: TextInputType.phone,
+                                validator: (number) {
+                                  if (number!.isEmpty) {
+                                    return '* required';
+                                  }
+                                  return null;
+                                },
+                                onSaved: (number) {
+                                  _member.phoneNumber = int.parse(number!);
+                                },
                               ),
-                              textCapitalization: TextCapitalization.sentences,
-                              keyboardType: TextInputType.text,
-                              validator: (value) {
-                                // FlutterPwValidator(
-                                //   width: 400,
-                                //   height: 150,
-                                //   minLength: 6,
-                                //   numericCharCount: 1,
-                                //   specialCharCount: 1,
-                                //   onSuccess: () {},
-                                //   controller: passController,
-                                // );
-                                if (value!.isEmpty) {
-                                  return '* required';
-                                }
-                                return null;
-                              },
-                            ),
-                          ),
-                          if (_authmode == AuthMode.login)
-                            const SizedBox(
-                              height: 220,
-                            ),
-                          if (_authmode == AuthMode.signup)
-                            FadeTransition(
-                              opacity: _fadeTransition,
-                              child: SlideTransition(
-                                position: _slideTransition,
-                                child: _fieldHead('Re-enter password'),
+                            _fieldHead('Enter password'),
+                            Container(
+                              margin: EdgeInsets.only(
+                                  top: deviceSize.height * 0.012),
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey),
+                                borderRadius: BorderRadius.circular(12),
                               ),
-                            ),
-                          if (_authmode == AuthMode.signup)
-                            FadeTransition(
-                              opacity: _fadeTransition,
-                              child: SlideTransition(
-                                position: _slideTransition,
-                                child: AnimatedContainer(
-                                  //curve: Curves.easeIn,
-                                  duration: const Duration(seconds: 2),
-                                  // padding: const EdgeInsets.symmetric(
-                                  //     horizontal: 15),
-                                  // margin: const EdgeInsets.only(top: 10),
-                                  // decoration: BoxDecoration(
-                                  //   border: Border.all(color: Colors.grey),
-                                  //   borderRadius: BorderRadius.circular(35),
-                                  // ),
-                                  child: TextFormField(
-                                    enabled: _authmode == AuthMode.signup,
-                                    obscureText: !_ispasswordVisible,
-                                    textCapitalization:
-                                        TextCapitalization.sentences,
-                                    decoration: InputDecoration(
-                                      contentPadding: const EdgeInsets.all(20),
-                                      //labelText: 'Re-enter password',
-                                      //border: InputBorder.none,
-                                      suffixIcon: IconButton(
-                                        icon: _ispasswordVisible
-                                            ? const Icon(
-                                                Icons.visibility_off_rounded)
-                                            : const Icon(
-                                                Icons.visibility_rounded),
-                                        onPressed: () {
-                                          setState(() {
-                                            _ispasswordVisible =
-                                                !_ispasswordVisible;
-                                          });
-                                        },
-                                      ),
-                                    ),
-                                    validator: (value) {
-                                      if (value!.isEmpty) {
-                                        return '* required';
-                                      } else if (value != passController.text) {
-                                        return 'Password does not match';
-                                      }
-                                      return null;
+                              child: TextFormField(
+                                controller: passController,
+                                obscureText: !_ispassVisible,
+                                decoration: InputDecoration(
+                                  contentPadding: const EdgeInsets.only(
+                                      left: 15, right: 15, top: 10),
+                                  //labelText: 'Password',
+                                  border: InputBorder.none,
+                                  suffixIcon: IconButton(
+                                    icon: _ispassVisible
+                                        ? const Icon(
+                                            Icons.visibility_off_rounded)
+                                        : const Icon(Icons.visibility_rounded),
+                                    onPressed: () {
+                                      setState(() {
+                                        _ispassVisible = !_ispassVisible;
+                                      });
                                     },
                                   ),
                                 ),
+                                textCapitalization:
+                                    TextCapitalization.sentences,
+                                keyboardType: TextInputType.text,
+                                validator: (value) {
+                                  // FlutterPwValidator(
+                                  //   width: 400,
+                                  //   height: 150,
+                                  //   minLength: 6,
+                                  //   numericCharCount: 1,
+                                  //   specialCharCount: 1,
+                                  //   onSuccess: () {},
+                                  //   controller: passController,
+                                  // );
+                                  if (value!.isEmpty) {
+                                    return '* required';
+                                  }
+                                  return null;
+                                },
                               ),
                             ),
-                        ],
+                            // if (_authmode == AuthMode.login)
+                            //   SizedBox(height: deviceSize.height * 0.01),
+                            if (_authmode == AuthMode.signup)
+                              FadeTransition(
+                                opacity: _fadeTransition,
+                                child: SlideTransition(
+                                  position: _slideTransition,
+                                  child: _fieldHead('Re-enter password'),
+                                ),
+                              ),
+                            if (_authmode == AuthMode.signup)
+                              FadeTransition(
+                                opacity: _fadeTransition,
+                                child: SlideTransition(
+                                  position: _slideTransition,
+                                  child: AnimatedContainer(
+                                    //curve: Curves.easeIn,
+                                    duration: const Duration(seconds: 2),
+                                    // padding: const EdgeInsets.symmetric(
+                                    //     horizontal: 15),
+                                    // margin: const EdgeInsets.only(top: 10),
+                                    // decoration: BoxDecoration(
+                                    //   border: Border.all(color: Colors.grey),
+                                    //   borderRadius: BorderRadius.circular(35),
+                                    // ),
+                                    child: TextFormField(
+                                      enabled: _authmode == AuthMode.signup,
+                                      obscureText: !_ispasswordVisible,
+                                      textCapitalization:
+                                          TextCapitalization.sentences,
+                                      decoration: InputDecoration(
+                                        contentPadding:
+                                            const EdgeInsets.all(20),
+                                        //labelText: 'Re-enter password',
+                                        //border: InputBorder.none,
+                                        suffixIcon: IconButton(
+                                          icon: _ispasswordVisible
+                                              ? const Icon(
+                                                  Icons.visibility_off_rounded)
+                                              : const Icon(
+                                                  Icons.visibility_rounded),
+                                          onPressed: () {
+                                            setState(() {
+                                              _ispasswordVisible =
+                                                  !_ispasswordVisible;
+                                            });
+                                          },
+                                        ),
+                                      ),
+                                      validator: (value) {
+                                        if (value!.isEmpty) {
+                                          return '* required';
+                                        } else if (value !=
+                                            passController.text) {
+                                          return 'Password does not match';
+                                        }
+                                        return null;
+                                      },
+                                    ),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                    if (_authmode == AuthMode.login)
+                      Column(
+                        children: [
+                          SizedBox(height: deviceSize.height * 0.022),
+                          TextButton(
+                            onPressed: () {},
+                            child: Text(
+                              'Forgot Password?',
+                              style: GoogleFonts.inter(
+                                  // fontWeight: FontWeight.w500,
+                                  color: const Color(0xff405c8c),
+                                  fontSize: 16,
+                                  letterSpacing: -0.5),
+                            ),
+                            style: TextButton.styleFrom(
+                                padding: const EdgeInsets.all(0)),
+                          ),
+                          // SizedBox(height: deviceSize.height * 0.022),
+                        ],
+                      ),
+                  ],
+                ),
               ),
-            ),
-            if (_authmode == AuthMode.signup)
-              const SizedBox(
-                height: 110,
-              ),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    saveForm(context);
-                  },
-                  child: Text(
-                    _authmode == AuthMode.login ? 'Login' : 'Signup',
-                    style: GoogleFonts.inter(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.white),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    primary: Theme.of(context).primaryColor,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 130, vertical: 10),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
+              // if (_authmode == AuthMode.login) const SizedBox(height: 40),
+
+              ElevatedButton(
+                onPressed: () {
+                  saveForm(context);
+                },
+                child: Text(
+                  _authmode == AuthMode.login ? 'Login' : 'Signup',
+                  style: GoogleFonts.inter(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xff405c8c),
+                  padding: EdgeInsets.symmetric(
+                      vertical: 10, horizontal: deviceSize.width * 0.35),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                TextButton(
-                  onPressed: () {
-                    _switchAuthMode();
-
-                    setState(() {});
-
-                    //print(_fadeTransition.status);
-                    //print(_slideTransition.status);
-                  },
-                  child: Text(_authmode == AuthMode.login
-                      ? 'Don\'t have an account? Signup'
-                      : 'Already have an account? Login Instead'),
+              ),
+              SizedBox(height: deviceSize.height * 0.08),
+              TextButton(
+                onPressed: () {
+                  _switchAuthMode();
+                  setState(() {});
+                },
+                child: Text(
+                  _authmode == AuthMode.login
+                      ? 'Don\'t have an account? Sign Up here'
+                      : 'Already have an account? Login Instead',
+                  style: GoogleFonts.inter(
+                      // fontWeight: FontWeight.w500,
+                      color: const Color(0xff405c8c),
+                      fontSize: 16,
+                      letterSpacing: -0.5),
                 ),
-                const SizedBox(height: 20)
-              ],
-            ),
-          ],
+                // style: TextButton.styleFrom(
+                //                 padding: const EdgeInsets.all(0)),
+              ),
+              const SizedBox(height: 20)
+            ],
+          ),
         ),
       ),
     );

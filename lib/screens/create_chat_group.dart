@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../widgets/search_widget.dart';
+import 'group_details_screen.dart';
 
 class CreateGroupChat extends StatefulWidget {
   const CreateGroupChat({Key? key}) : super(key: key);
@@ -15,148 +16,205 @@ class CreateGroupChat extends StatefulWidget {
 }
 
 class _CreateGroupChatState extends State<CreateGroupChat> {
-  List _allUsers = [];
-  Future? resultsLoaded;
-  List _resultsList = [];
   final _searchController = TextEditingController();
-  bool wantToAddInGroup = false;
-  List _groupContacts = [];
 
-  getUsersInfo() async {
-    var users = await FirebaseFirestore.instance.collection('users').get();
+  List groupMembersIDList = [];
+  List groupMembersNameList = [];
 
+  addMembersToList(snapshot, index) {
     setState(() {
-      _allUsers = users.docs;
-    });
-
-    searchResultsList();
-    //print(users);
-    return 'complete';
-  }
-
-  onSearchChanged() {
-    searchResultsList();
-    //print(_searchController.text);
-  }
-
-  searchResultsList() {
-    var showResults = [];
-
-    if (_searchController.text != '') {
-      // we have search parameter
-      for (var user in _allUsers) {
-        String userName = user['name'];
-        String name = userName.toLowerCase();
-
-        if (name.contains(_searchController.text.toLowerCase())) {
-          showResults.add(user);
-        }
-      }
-    } else {
-      showResults = List.from(_allUsers);
-    }
-    setState(() {
-      _resultsList = showResults;
+      groupMembersIDList.add(snapshot.data!.docs[index]['id']);
+      groupMembersNameList.add(snapshot.data!.docs[index]['name']);
     });
   }
 
-  @override
-  void initState() {
-    super.initState();
-    _searchController.addListener(onSearchChanged);
+  removeMembersFromList(snapshot, index) {
+    setState(() {
+      groupMembersIDList.remove(snapshot.data!.docs[index]['id']);
+      groupMembersNameList.remove(snapshot.data!.docs[index]['name']);
+    });
   }
 
   @override
   void dispose() {
-    _searchController.removeListener(onSearchChanged);
     _searchController.dispose();
     super.dispose();
   }
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    resultsLoaded = getUsersInfo();
-  }
-
-  addContactToGroupList(dynamic userDocument) {
-    setState(() {
-      _groupContacts.add(userDocument);
-      _resultsList.remove(userDocument);
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
     //final members = Provider.of<Members>(context, listen: false);
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Create chat group',
-            style: GoogleFonts.inter(
-                fontWeight: FontWeight.w500, color: Colors.white)),
-        iconTheme: Theme.of(context).iconTheme,
-      ),
-      body: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          SearchWidget(searchController: _searchController),
-          Container(
-            height: 90,
-            decoration: BoxDecoration(border: Border.all()),
-            child: Row(
-              children: const [
-                 CircleAvatar(radius: 30,),
-              ],
-            ),
+    return WillPopScope(
+      onWillPop: () async {
+        FirebaseFirestore.instance.collection('users').get().then((value) {
+          for (DocumentSnapshot docs in value.docs) {
+            docs.reference.update({'isSelectedForGroupChat': false});
+          }
+        });
+        return true;
+      },
+      child: GestureDetector(
+        onTap: () {
+          FocusManager.instance.primaryFocus?.unfocus();
+        },
+        child: Scaffold(
+          appBar: AppBar(
+            title: Text('Create chat group',
+                style: GoogleFonts.inter(
+                    fontWeight: FontWeight.w500, color: Colors.black)),
+            iconTheme: Theme.of(context).iconTheme,
+            actions: [
+              groupMembersNameList.isNotEmpty
+                  ? TextButton(
+                      child: const Text('next'),
+                      onPressed: () {
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (_) =>  GroupDetailsScreen(groupMembersNameList: groupMembersNameList,)));
+                      },
+                    )
+                  : const SizedBox(),
+            ],
           ),
-          Expanded(
-            child: ListView.separated(
-              separatorBuilder: (context, index) => const Divider(),
-              //itemCount: _allUsers.length - 1,
-              itemCount: _resultsList.length,
-              itemBuilder: (context, index) {
-                if (_allUsers[index]['id'] ==
-                    FirebaseAuth.instance.currentUser!.uid) {}
-                var userDoc = _resultsList[index];
-                return ListTile(
-                  //title: Text(_allUsers[index]['name']),
-                  title: Text(_resultsList[index]['name']),
-                  trailing: const Icon(Icons.circle_outlined),
-                  onTap: () {
-                    addContactToGroupList(userDoc);
+          body: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SearchWidget(
+                  searchController: _searchController,
+                  onSearchChanged: () => setState(() {})),
+              if (groupMembersNameList.isNotEmpty)
+                Container(
+                  height: 40,
+                  margin: const EdgeInsets.all(10),
+                  alignment: Alignment.centerLeft,
+                  child: ListView.builder(
+                      shrinkWrap: true,
+                      scrollDirection: Axis.horizontal,
+                      itemCount: groupMembersNameList.length,
+                      itemBuilder: (context, index) {
+                        return Row(children: [
+                          Container(
+                            padding: const EdgeInsets.only(left: 10),
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                                border: Border.all(),
+                                borderRadius: BorderRadius.circular(20)),
+                            child: Row(
+                              children: [
+                                Text(
+                                  groupMembersNameList[index],
+                                  style: GoogleFonts.inter(
+                                      fontWeight: FontWeight.w500,
+                                      color: const Color(0xff54545A),
+                                      fontSize: 12,
+                                      letterSpacing: -0.5),
+                                  textAlign: TextAlign.center,
+                                  overflow: TextOverflow.fade,
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.close),
+                                  onPressed: () {
+                                    FirebaseFirestore.instance
+                                        .collection('users')
+                                        .doc(groupMembersIDList[index])
+                                        .update(
+                                            {'isSelectedForGroupChat': false});
+
+                                    groupMembersIDList
+                                        .remove(groupMembersIDList[index]);
+                                    groupMembersNameList
+                                        .remove(groupMembersNameList[index]);
+                                    setState(() {});
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 10)
+                        ]);
+                      }),
+                ),
+              Expanded(
+                child: StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance
+                      .collection('users')
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) {
+                      return const Center(child: Text('Loading...'));
+                    }
+                    return ListView.builder(
+                      itemCount: snapshot.data!.docs.length - 1,
+                      itemBuilder: (ctx, index) {
+                        if (snapshot.data!.docs[index]['id'] ==
+                            FirebaseAuth.instance.currentUser!.uid) {
+                          index = index + 1;
+                        }
+                        bool isSelectedForGroupChat = snapshot.data!.docs[index]
+                            ['isSelectedForGroupChat'];
+
+                        if (_searchController.text.isEmpty) {
+                          return ListTile(
+                            title: Text(snapshot.data!.docs[index]['name']),
+                            trailing: isSelectedForGroupChat
+                                ? IconButton(
+                                    icon:
+                                        const Icon(Icons.check_circle_rounded),
+                                    onPressed: () {},
+                                  )
+                                : null,
+                            onTap: () {
+                              isSelectedForGroupChat = !isSelectedForGroupChat;
+                              FirebaseFirestore.instance
+                                  .collection('users')
+                                  .doc(snapshot.data!.docs[index]['id'])
+                                  .update({
+                                'isSelectedForGroupChat': isSelectedForGroupChat
+                              });
+
+                              if (isSelectedForGroupChat) {
+                                addMembersToList(snapshot, index);
+                              } else {
+                                removeMembersFromList(snapshot, index);
+                              }
+                            },
+                          );
+                        }
+
+                        if (snapshot.data!.docs[index]['name']
+                            .toString()
+                            .toLowerCase()
+                            .contains(_searchController.text.toLowerCase())) {
+                          return ListTile(
+                            title: Text(snapshot.data!.docs[index]['name']),
+                            trailing: isSelectedForGroupChat
+                                ? const Icon(Icons.check_circle_rounded)
+                                : null,
+                            onTap: () {
+                              isSelectedForGroupChat = !isSelectedForGroupChat;
+                              FirebaseFirestore.instance
+                                  .collection('users')
+                                  .doc(snapshot.data!.docs[index]['id'])
+                                  .update({
+                                'isSelectedForGroupChat': isSelectedForGroupChat
+                              });
+
+                              if (isSelectedForGroupChat) {
+                                addMembersToList(snapshot, index);
+                              } else {
+                                removeMembersFromList(snapshot, index);
+                              }
+                            },
+                          );
+                        }
+                        return const SizedBox();
+                      },
+                    );
                   },
-                );
-              },
-            ),
+                ),
+              ),
+            ],
           ),
-          // Expanded(
-          //   child: StreamBuilder<QuerySnapshot>(
-          //     stream:
-          //         FirebaseFirestore.instance.collection('users').snapshots(),
-          //     builder: (context, snapshot) {
-          //       if (!snapshot.hasData) {
-          //         return const Center(child: Text('Loading...'));
-          //       }
-          //       return ListView.separated(
-          //         separatorBuilder: (ctx, index) => const Divider(),
-          //         itemCount: snapshot.data!.docs.length - 1,
-          //         itemBuilder: (ctx, index) {
-          //           if (snapshot.data!.docs[index]['id'] ==
-          //               FirebaseAuth.instance.currentUser!.uid) {
-          //             index = index + 1;
-          //           }
-          //           if (index == snapshot.data!.docs.length - 1) {
-          //             getUsersInfo();
-          //           }
-          //           return ListTile(
-          //             title: Text(snapshot.data!.docs[index]['name']),
-          //           );
-          //         },
-          //       );
-          //     },
-          //   ),
-          // ),
-        ],
+        ),
       ),
     );
   }

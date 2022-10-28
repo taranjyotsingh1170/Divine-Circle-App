@@ -11,7 +11,7 @@ class PrTeamScreen extends StatelessWidget {
       appBar: AppBar(
         title:  Text('Public Relations Team',
             style: GoogleFonts.inter(
-                fontWeight: FontWeight.w500, color: Colors.white)),
+                fontWeight: FontWeight.w500)),
         iconTheme: Theme.of(context).iconTheme,
         elevation: 0,
       ),

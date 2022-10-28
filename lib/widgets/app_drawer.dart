@@ -13,19 +13,22 @@ class AppDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      //backgroundColor: Colors.white,
+      //backgroundColor: const Color(0xff333333),
       child: Column(
         children: [
           AppBar(
-            title:  Text('Hnlo', style: GoogleFonts.inter(
-                fontWeight: FontWeight.w500, color: Colors.white)),
-             iconTheme: Theme.of(context).iconTheme,
+            title: Text('Hnlo',
+                style: GoogleFonts.inter(
+                    fontWeight: FontWeight.w500, color: Colors.black)),
+            iconTheme: Theme.of(context).iconTheme,
             backgroundColor: Theme.of(context).primaryColor,
-          ), ListTile(
+          ),
+          ListTile(
             leading: const Icon(Icons.star_outline),
-            title:  Text(
+            title: Text(
               'Home Screen',
-              style: GoogleFonts.inter(fontSize: 20,  fontWeight: FontWeight.w500),
+              style:
+                  GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.w500),
             ),
             onTap: () {
               Navigator.of(context).pushNamed(TabsScreen.routeName);
@@ -34,9 +37,10 @@ class AppDrawer extends StatelessWidget {
           const Divider(),
           ListTile(
             leading: const Icon(Icons.star_outline),
-            title:  Text(
+            title: Text(
               'Wall of Fame',
-              style: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.w500),
+              style:
+                  GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.w500),
             ),
             onTap: () {
               Navigator.of(context).pushNamed(WallOfFame.routeName);

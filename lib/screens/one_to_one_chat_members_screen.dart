@@ -9,13 +9,15 @@ import '/screens/one_to_one_chat_screen.dart';
 class OneToOneChatMembersScreen extends StatelessWidget {
   const OneToOneChatMembersScreen({Key? key}) : super(key: key);
 
+  static const routeName = '/chat-members-screen';
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('One to one chat',
             style: GoogleFonts.inter(
-                fontWeight: FontWeight.w500, color: Colors.white)),
+                fontWeight: FontWeight.w500, color: Colors.black)),
         iconTheme: Theme.of(context).iconTheme,
       ),
       body: StreamBuilder<QuerySnapshot>(
@@ -35,8 +37,7 @@ class OneToOneChatMembersScreen extends StatelessWidget {
               var fields = value.data();
               senderName = fields!['name'];
             });
-            return ListView.separated(
-              separatorBuilder: (ctx, index) => const Divider(),
+            return ListView.builder(
               itemCount: snapshot.data!.docs.length - 1,
               itemBuilder: (ctx, index) {
                 if (snapshot.data!.docs[index]['id'] ==

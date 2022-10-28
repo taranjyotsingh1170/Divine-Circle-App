@@ -9,6 +9,8 @@ class Member {
   bool isInContentTeam;
   bool isInPrTeam;
   bool isInKirtanTeam;
+  bool isSelectedForDuty;
+  bool isSelectedForGroupChat;
 
   Member({
     required this.id,
@@ -19,5 +21,7 @@ class Member {
     this.isInContentTeam = false,
     this.isInPrTeam = false,
     this.isInKirtanTeam = false,
+    this.isSelectedForDuty = false,
+    this.isSelectedForGroupChat = false,
   });
 }
